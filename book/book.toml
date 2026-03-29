@@ -13,3 +13,4 @@ edit-url-template = "https://github.com/oliynykmax/Tleilax/edit/main/book/src/{p
 additional-js = ["mermaid.min.js", "mermaid-init.js"]
 
 [output.pdf]
+optional = true
