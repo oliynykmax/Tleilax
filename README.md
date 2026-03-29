@@ -1,6 +1,7 @@
 # Tleilax 🌿
 
 > A real-time ecosystem sandbox simulation for Android.
+> The name is inspired by the Bene Tleilax from Frank Herbert's *Dune* — a faction known for biological engineering and creating new life forms.
 
 ## What is it?
 
