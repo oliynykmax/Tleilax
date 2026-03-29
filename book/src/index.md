@@ -141,7 +141,6 @@ classDiagram
     }
     note for Predator "scans for Prey within visionRange"
 
-    class Wolf
     note for Wolf "highest speed and vision, hunts all Prey subtypes"
 
     class Prey {
@@ -150,9 +149,6 @@ classDiagram
     }
     note for Prey "scans for Plant within visionRange, flees Predator"
 
-    class Rabbit
-    class Mouse
-    class Deer
     class Plant {
         <<abstract>>
         +spread(Grid grid)*
@@ -160,11 +156,8 @@ classDiagram
     }
     note for Plant "reproduce() calls spread"
 
-    class Grass
     note for Grass "spreads fast, low energy yield"
-    class BerryBush
     note for BerryBush "spreads slow, high energy yield"
-    class Tree
     note for Tree "does not spread, blocks animal movement"
 
     Entity <|-- Organism
@@ -179,15 +172,6 @@ classDiagram
     Plant <|-- Grass
     Plant <|-- BerryBush
     Plant <|-- Tree
-
-    %% Remove empty compartments for concrete species
-    class Wolf { }
-    class Rabbit { }
-    class Mouse { }
-    class Deer { }
-    class Grass { }
-    class BerryBush { }
-    class Tree { }
 
     class Grid {
         +Entity[][] cells
