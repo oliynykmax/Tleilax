@@ -1,4 +1,13 @@
-# Tleilax 🌿
+# Tleilax
+
+Real-time 2D ecosystem sandbox simulation for Android.
+
+### 📖 Documentation
+The full project plan, architectural diagrams, and UI wireframes are available at:
+**[https://oliynykmax.github.io/Tleilax/](https://oliynykmax.github.io/Tleilax/)**
+
+---
+ 🌿
 
 > A real-time ecosystem sandbox simulation for Android.
 > The name is inspired by the Bene Tleilax from Frank Herbert's *Dune* — a faction known for biological engineering and creating new life forms.
