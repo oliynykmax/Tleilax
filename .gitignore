@@ -28,3 +28,4 @@ local.properties
 *.rar
 hs_err_pid*
 replay_pid*
+book/book

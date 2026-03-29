@@ -1,0 +1,13 @@
+[book]
+authors = ["Maksym Oliinyk", "Maia Salin", "Ejota Elezaj"]
+language = "en"
+src = "src"
+title = "Tleilax Project Plan"
+
+[preprocessor.mermaid]
+command = "mdbook-mermaid"
+
+[output.html]
+git-repository-url = "https://github.com/oliynykmax/Tleilax"
+edit-url-template = "https://github.com/oliynykmax/Tleilax/edit/main/book/src/{path}"
+additional-js = ["mermaid.min.js", "mermaid-init.js"]
