@@ -15,15 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install mdBook
-        run: |
-          curl -sSL https://github.com/rust-lang/mdBook/releases/download/v0.4.43/mdbook-v0.4.43-x86_64-unknown-linux-gnu.tar.gz | tar -xz
-          chmod +x mdbook
-          mv mdbook /usr/local/bin/
+        run: cargo install mdbook --version 0.4.43
       - name: Install mdbook-mermaid
-        run: |
-          curl -sSL https://github.com/badboy/mdbook-mermaid/releases/download/v0.17.0/mdbook-mermaid-v0.17.0-x86_64-unknown-linux-gnu.tar.gz | tar -xz
-          chmod +x mdbook-mermaid
-          mv mdbook-mermaid /usr/local/bin/
+        run: cargo install mdbook-mermaid --version 0.17.0
       - name: Build Book
         run: |
           cd book
