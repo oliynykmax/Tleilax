@@ -180,6 +180,15 @@ classDiagram
     Plant <|-- BerryBush
     Plant <|-- Tree
 
+    %% Remove empty compartments for concrete species
+    class Wolf { }
+    class Rabbit { }
+    class Mouse { }
+    class Deer { }
+    class Grass { }
+    class BerryBush { }
+    class Tree { }
+
     class Grid {
         +Entity[][] cells
         +int width
