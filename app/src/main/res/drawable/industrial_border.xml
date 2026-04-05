@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main Border -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="2dp" android:color="@color/border_industrial" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <!-- Corner Accents (Top Left) -->
+    <item android:width="12dp" android:height="12dp" android:gravity="top|start">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/accent_lime" />
+        </shape>
+    </item>
+
+    <!-- Corner Accents (Bottom Right) -->
+    <item android:width="12dp" android:height="12dp" android:gravity="bottom|end">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/accent_orange" />
+        </shape>
+    </item>
+</layer-list>
