@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_simulation"
+        android:icon="@android:drawable/ic_menu_today" />
+    <item
+        android:id="@+id/navigation_stats"
+        android:icon="@android:drawable/ic_menu_sort_by_size" />
+    <item
+        android:id="@+id/navigation_save_load"
+        android:icon="@android:drawable/ic_menu_save" />
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/ic_settings" />
+</menu>

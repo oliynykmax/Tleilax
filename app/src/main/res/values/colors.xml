@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Tleilax / Dune x Gruvbox Palette -->
+    <!-- Backgrounds -->
+    <color name="bg_dark">#1d2021</color>
+    <color name="bg_surface">#282828</color>
+    <color name="bg_surface_elevated">#32302f</color>
+    <color name="bg_overlay">#1a1918</color>
+
+    <!-- Accents (Spice / Gruvbox warm tones) -->
+    <color name="accent_gold">#d79921</color>
+    <color name="accent_gold_bright">#fabd2f</color>
+    <color name="accent_orange">#d65d0e</color>
+    <color name="accent_red">#cc241d</color>
+    <color name="accent_green">#98971a</color>
+    <color name="accent_aqua">#689d6a</color>
+
+    <!-- Text -->
+    <color name="text_primary">#ebdbb2</color>
+    <color name="text_secondary">#a89984</color>
+    <color name="text_muted">#7c6f64</color>
+    <color name="text_disabled">#504945</color>
+
+    <!-- Borders / Dividers -->
+    <color name="border_subtle">#3c3836</color>
+    <color name="border_accent">#bdae93</color>
+
+    <!-- Legacy compatibility -->
+    <color name="bg_dune">#1d2021</color>
+    <color name="bg_surface_obsidian">#282828</color>
+    <color name="accent_spice_gold">#d79921</color>
+    <color name="accent_spice_glow">#fabd2f</color>
+    <color name="accent_flesh">#9d0006</color>
+    <color name="text_parchment">#ebdbb2</color>
+    <color name="text_dust">#a89984</color>
+    <color name="border_etched">#3c3836</color>
+    <color name="grid_spice">#282828</color>
+    <color name="border_industrial">#3c3836</color>
+    <color name="accent_lime">#98971a</color>
+    <color name="bg_ink">#1d2021</color>
+    <color name="text_high_contrast">#ebdbb2</color>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
