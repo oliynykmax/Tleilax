@@ -28,6 +28,7 @@ public class SaveAdapter extends RecyclerView.Adapter<SaveAdapter.SaveViewHolder
     @Override
     public void onBindViewHolder(@NonNull SaveViewHolder holder, int position) {
         holder.binding.textSaveName.setText(items.get(position));
+        holder.binding.textSaveDetails.setText("");
     }
 
     @Override

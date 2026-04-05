@@ -12,7 +12,6 @@
         <!-- Default UI Components -->
         <item name="materialButtonStyle">@style/Widget.Tleilax.Button</item>
         <item name="bottomNavigationStyle">@style/Widget.Tleilax.BottomNavigation</item>
-        <item name="navigationRailStyle">@style/Widget.Tleilax.BottomNavigation</item>
     </style>
 
     <style name="Theme.Tleilax" parent="Base.Theme.Tleilax" />

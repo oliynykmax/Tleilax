@@ -2,14 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/navigation_simulation"
+        android:title="Simulation"
         android:icon="@android:drawable/ic_menu_today" />
     <item
         android:id="@+id/navigation_stats"
+        android:title="Stats"
         android:icon="@android:drawable/ic_menu_sort_by_size" />
     <item
         android:id="@+id/navigation_save_load"
+        android:title="Save / Load"
         android:icon="@android:drawable/ic_menu_save" />
     <item
         android:id="@+id/navigation_settings"
+        android:title="Settings"
         android:icon="@drawable/ic_settings" />
 </menu>
