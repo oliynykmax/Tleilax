@@ -68,7 +68,6 @@ public class SimulationFragment extends Fragment {
                 binding.btnTree
         );
 
-        MaterialButton[] selected = {binding.btnWolf};
         binding.btnWolf.setStrokeColorResource(R.color.accent_gold);
 
         for (MaterialButton btn : speciesButtons) {
@@ -77,7 +76,6 @@ public class SimulationFragment extends Fragment {
                     other.setStrokeColorResource(R.color.border_subtle);
                 }
                 btn.setStrokeColorResource(R.color.accent_gold);
-                selected[0] = btn;
             });
         }
     }
