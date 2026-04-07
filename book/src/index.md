@@ -327,18 +327,18 @@ handled via a bottom navigation bar with four destinations.
 
 **Layout:**
 - RecyclerView listing saved simulations (name, date, tick count, species alive)
-- Swipe to delete, tap to load
+- Swipe left to delete, tap to load
 - Save current simulation button at top
+- Prompt for a custom save name before writing the snapshot
 
 ---
 
 ### Screen 4 — Settings
 
 **Layout:**
-- Grid size slider (10×10 to 40×40)
-- Default simulation speed selector
-- Initial population sliders per species (used when starting a new simulation)
-- Reset to defaults button
+- Presentation toggles such as music mute/unmute and grid visibility
+- World-generation controls such as grass coverage
+- Destructive cleanup action that clears saved worlds and restores defaults
 
 ---
 
