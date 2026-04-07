@@ -1,3 +1,74 @@
 <resources>
     <string name="app_name">Tleilax</string>
+    <string name="cycle_count">Cycle %1$d</string>
+    <string name="reset_confirmation_title">Grow a new world?</string>
+    <string name="reset_confirmation_message">This will generate a new %1$dx%1$d world and pause the simulation.</string>
+    <string name="reset_confirmation_confirm">Grow new world</string>
+    <string name="reset_confirmation_cancel">Cancel</string>
+    <string name="reset_confirmation_body">Uses your current settings and keeps the simulation paused until you press play again.</string>
+    <string name="reset_dialog_label">World reset</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Presentation controls apply immediately. World-generation options come next.</string>
+    <string name="settings_presentation">Presentation</string>
+    <string name="settings_music">Music</string>
+    <string name="settings_music_on_hint">Ambient soundtrack is enabled.</string>
+    <string name="settings_music_off_hint">Ambient soundtrack is muted.</string>
+    <string name="settings_show_grid">Show grid</string>
+    <string name="settings_show_grid_hint">Toggles the tile overlay without changing simulation rules.</string>
+    <string name="settings_world_generation">World generation</string>
+    <string name="settings_world_generation_hint">Applies on the next reset.</string>
+    <string name="settings_grass_coverage">Grass coverage</string>
+    <string name="settings_grass_coverage_value">%1$d%%</string>
+    <string name="settings_cleanup_title">Cleanup</string>
+    <string name="settings_cleanup_hint">Clears every saved world, restores default settings, and rebuilds the current simulation.</string>
+    <string name="settings_cleanup_button">Reset everything</string>
+    <string name="settings_cleanup_confirm_title">Reset everything?</string>
+    <string name="settings_cleanup_confirm_body">This removes every saved world, restores default settings, and grows a fresh simulation world.</string>
+    <string name="settings_cleanup_done">Everything was reset.</string>
+    <string name="settings_cleanup_failed">Could not reset everything.</string>
+    <string name="save_load_subtitle">Name the current world, tap any entry to load it, or swipe left to delete.</string>
+    <string name="save_load_save_current">Save current simulation</string>
+    <string name="save_load_empty">No saved worlds yet. Save the current simulation to start your archive.</string>
+    <string name="save_load_saved">World saved.</string>
+    <string name="save_load_loaded">World loaded.</string>
+    <string name="save_load_deleted">Save deleted.</string>
+    <string name="save_load_missing_world">Generate a world before saving it.</string>
+    <string name="save_load_save_failed">Could not save this world.</string>
+    <string name="save_load_load_failed">Could not load that save.</string>
+    <string name="save_load_delete_failed">Could not delete that save.</string>
+    <string name="save_dialog_label">World archive</string>
+    <string name="save_dialog_title">Name this save</string>
+    <string name="save_dialog_body">Give the current world a short name before storing it.</string>
+    <string name="save_dialog_input_hint">World name</string>
+    <string name="save_dialog_confirm">Save world</string>
+    <string name="save_dialog_cancel">Cancel</string>
+    <string name="save_dialog_name_required">Enter a save name.</string>
+    <string name="loading_label_world_gen">WORLD_GEN</string>
+    <string name="loading_title">Growing the world</string>
+    <string-array name="loading_status_lines">
+        <item>Dunewrangling…</item>
+        <item>Sandstitching…</item>
+        <item>Grassfiddling…</item>
+        <item>Rootshuffling…</item>
+        <item>Biomancing…</item>
+        <item>Bushbuffing…</item>
+        <item>Treestacking…</item>
+        <item>Dithering…</item>
+        <item>Scruffing…</item>
+        <item>Mossaging…</item>
+        <item>Dustwhisking…</item>
+        <item>Seedwhispering…</item>
+        <item>Dunetuning…</item>
+        <item>Burrowbaking…</item>
+        <item>Canopyfussing…</item>
+        <item>Shrubbling…</item>
+        <item>Snoutcalibrating…</item>
+        <item>Pawplotting…</item>
+        <item>Burrowbraiding…</item>
+        <item>Thicketing…</item>
+        <item>Loamjuggling…</item>
+        <item>Brushmurmuring…</item>
+        <item>Nibblecrafting…</item>
+        <item>Duneblossoming…</item>
+    </string-array>
 </resources>

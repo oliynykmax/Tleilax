@@ -16,6 +16,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/archive_hint"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/save_load_subtitle"
+        android:textColor="@color/text_muted"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/archive_label" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save_current"
         style="@style/Widget.Tleilax.Button.Accent"
@@ -24,10 +38,25 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="20dp"
-        android:text="Save simulation"
+        android:text="@string/save_load_save_current"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/archive_label" />
+        app:layout_constraintTop_toBottomOf="@id/archive_hint" />
+
+    <TextView
+        android:id="@+id/text_empty_saves"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:gravity="center"
+        android:text="@string/save_load_empty"
+        android:textColor="@color/text_muted"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_save_current" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_save_load"
