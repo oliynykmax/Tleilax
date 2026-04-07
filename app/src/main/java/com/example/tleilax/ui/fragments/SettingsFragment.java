@@ -1,6 +1,9 @@
 package com.example.tleilax.ui.fragments;
 
+import android.content.Context;
+import android.os.Handler;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.tleilax.R;
+import com.example.tleilax.TleilaxApp;
 import com.example.tleilax.databinding.FragmentSettingsBinding;
 import com.example.tleilax.simulation.SimulationEngine;
 import com.example.tleilax.simulation.SimulationSession;
@@ -26,6 +30,7 @@ import java.util.concurrent.Executors;
 public class SettingsFragment extends Fragment implements AppSettings.Listener {
 
     private final ExecutorService cleanupExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private FragmentSettingsBinding binding;
 
@@ -146,28 +151,33 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
     }
 
     private void runFullReset() {
+        Context appContext = TleilaxApp.getAppContext();
         if (binding != null) {
             binding.btnResetEverything.setEnabled(false);
         }
         cleanupExecutor.execute(() -> {
             try {
-                SimulationStorage simulationStorage = new SimulationStorage(requireContext());
+                SimulationStorage simulationStorage = new SimulationStorage(appContext);
                 simulationStorage.deleteAll();
-                requireActivity().runOnUiThread(() -> {
-                    AppSettings.resetToDefaults(requireContext());
+                mainHandler.post(() -> {
+                    AppSettings.resetToDefaults(appContext);
                     SimulationSession.getEngine().reset(SimulationEngine.FIXED_WORLD_SIZE, SimulationEngine.FIXED_WORLD_SIZE);
                     SimulationSession.setWorldInitialized(true);
                     if (binding != null) {
                         binding.btnResetEverything.setEnabled(true);
                     }
-                    Toast.makeText(requireContext(), R.string.settings_cleanup_done, Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(appContext, R.string.settings_cleanup_done, Toast.LENGTH_SHORT).show();
+                    }
                 });
             } catch (RuntimeException exception) {
-                requireActivity().runOnUiThread(() -> {
+                mainHandler.post(() -> {
                     if (binding != null) {
                         binding.btnResetEverything.setEnabled(true);
                     }
-                    Toast.makeText(requireContext(), R.string.settings_cleanup_failed, Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(appContext, R.string.settings_cleanup_failed, Toast.LENGTH_SHORT).show();
+                    }
                 });
             }
         });
