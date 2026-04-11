@@ -4,6 +4,15 @@
 Real-time 2D ecosystem sandbox simulation for Android. Java, Min SDK 28, Target SDK 36, Java 21.
 Full docs: https://oliynykmax.github.io/Tleilax/
 
+## Current Product Notes
+- The simulation world is currently fixed at `256x256`.
+- The world uses layered tiles with `terrain`, `ground`, `plant`, and `animal` occupancy.
+- `SimulationCanvasView` is pan/zoom capable and only draws the visible viewport.
+- The simulation tab uses an in-canvas loading overlay and a paused-by-default startup state.
+- Save/Load is Room-backed and stores serialized world snapshots plus summary metadata.
+- Settings currently include presentation toggles, grass coverage, and a destructive cleanup action that clears all saves and regenerates the world.
+- CI builds the debug APK and uploads it as a GitHub Actions artifact; release signing is not configured yet.
+
 ## Build / Test Commands
 
 ```bash
@@ -28,13 +37,14 @@ Full docs: https://oliynykmax.github.io/Tleilax/
 ### Package Structure
 ```
 com.example.tleilax/
-├── model/          Entity, Animal, Predator, Prey, Plant
-├── simulation/     SimulationEngine, Grid, TickLogic
-├── storage/        SaveLoad interface, Room persistence
+├── model/          Entity, Animal, Predator, Prey, Plant, EntityType
+├── simulation/     SimulationEngine, Grid, TickLogic, Tile, PlantState, WorldSnapshot
+├── storage/        SaveLoad interface, Room persistence, snapshot codecs
 ├── ui/
-│   ├── fragments/  SimulationFragment, StatsFragment, ConfigFragment
-│   └── adapters/   RecyclerView adapters
-└── utils/          StatTracker, Helpers
+│   ├── fragments/  SimulationFragment, StatsFragment, SaveLoadFragment, SettingsFragment
+│   ├── adapters/   RecyclerView adapters
+│   └── view/       SimulationCanvasView, TextureLibrary
+└── utils/          StatTracker, AppSettings, helpers
 ```
 
 ### Imports
@@ -78,9 +88,14 @@ com.example.tleilax/
 ### Android-Specific
 - Use `EdgeToEdge.enable()` in activities (already set in `MainActivity`)
 - Fragments extend `androidx.fragment.app.Fragment`
-- Use `ViewBinding` or `findViewById` consistently (project currently uses `findViewById`)
+- The project now uses `ViewBinding` in fragments and adapters
 - Keep UI logic in Fragments, business logic out of UI layer
 - Use `RecyclerView` with `ViewHolder` pattern for lists
+
+### Persistence
+- Room is available and should be preferred for save metadata and persisted world state.
+- Save entries currently store both summary fields and a serialized snapshot payload.
+- Avoid introducing alternative persistence formats for the same feature unless there is a migration reason.
 
 ### Testing
 - **Unit tests** (`src/test/`): JUnit 4, run on JVM, no Android dependencies
