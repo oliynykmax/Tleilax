@@ -16,7 +16,73 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Chart Placeholder -->
+    <HorizontalScrollView
+        android:id="@+id/graph_toggle_scroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="20dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/stats_label">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/graph_toggle_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:checkedButton="@id/btn_top_species"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_top_species"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 5"
+                android:textAllCaps="false"
+                android:textColor="#E7C76A"
+                app:backgroundTint="@color/bg_surface"
+                app:strokeColor="#E7C76A" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_all_species"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                android:textAllCaps="false"
+                android:textColor="#E7C76A"
+                app:backgroundTint="@color/bg_surface"
+                app:strokeColor="#E7C76A" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_animals_only"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Animals"
+                android:textAllCaps="false"
+                android:textColor="#E7C76A"
+                app:backgroundTint="@color/bg_surface"
+                app:strokeColor="#E7C76A" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_plants_only"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Plants"
+                android:textAllCaps="false"
+                app:backgroundTint="@color/bg_surface"
+                app:strokeColor="#E7C76A"
+                android:textColor="#E7C76A" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </HorizontalScrollView>
+
     <FrameLayout
         android:id="@+id/any_chart_container"
         android:layout_width="0dp"
@@ -26,7 +92,7 @@
         app:layout_constraintBottom_toTopOf="@id/summary_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/stats_label">
+        app:layout_constraintTop_toBottomOf="@id/graph_toggle_scroll">
 
         <View
             android:layout_width="match_parent"
@@ -37,9 +103,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:fontFamily="sans-serif"
             android:text="Population chart"
             android:textColor="@color/text_muted"
-            android:fontFamily="sans-serif"
             android:textSize="14sp" />
     </FrameLayout>
 
@@ -50,11 +116,11 @@
         android:layout_margin="20dp"
         app:cardBackgroundColor="@color/bg_surface"
         app:cardCornerRadius="8dp"
-        app:strokeColor="@color/border_subtle"
-        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="@color/border_subtle"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -66,9 +132,9 @@
                 android:id="@+id/text_summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
                 android:text="Simulation running · 0 ticks"
                 android:textColor="@color/text_primary"
-                android:fontFamily="sans-serif"
                 android:textSize="14sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
