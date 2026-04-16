@@ -38,6 +38,10 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+    // Native charting library (free, no watermarks, Apache 2.0)
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // Room (from main) — keep alongside chart dependency
     implementation libs.room.runtime
     annotationProcessor libs.room.compiler
 
