@@ -1,153 +1,266 @@
 package com.example.tleilax.simulation;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.tleilax.model.Entity;
+import com.example.tleilax.model.EntityType;
+import com.example.tleilax.TleilaxApp;
+import com.example.tleilax.utils.AppSettings;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-/**
- * Drives the simulation loop: manages tick scheduling, speed control,
- * state snapshots, and per-tick statistics collection.
- * Call tick() from an Android Handler/Runnable at the interval
- * determined by tickIntervalMs() — or let the engine drive itself
- * if you pass in a Runnable scheduler.
- */
 public class SimulationEngine {
 
-    // ── Speed presets (ms per tick) ──────────────────────────────────
-    public static final int SPEED_PAUSED = 0;
-    public static final int SPEED_SLOW   = 800;
-    public static final int SPEED_NORMAL = 400;
-    public static final int SPEED_FAST   = 100;
+    public static final int FIXED_WORLD_SIZE = 256;
 
-    // ── State enum ───────────────────────────────────────────────────
-    public enum SimulationState { RUNNING, PAUSED, STOPPED }
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final TickLogic tickLogic = new TickLogic();
+    private final Runnable tickRunnable = new Runnable() {
+        @Override
+        public void run() {
+            tickOnce();
+            if (running) {
+                handler.postDelayed(this, getTickDelayMillis());
+            }
+        }
+    };
 
-    // ── Fields ───────────────────────────────────────────────────────
-    public Grid grid;
-    public int  tickCount;
-    public SimulationState state;
+    private Grid grid;
+    private boolean running;
+    private int speedMultiplier = 1;
+    private long tickCount;
+    @NonNull
+    private final List<Listener> listeners = new ArrayList<>();
 
-    private int currentSpeed;
-
-    /** Listener notified after each tick (update UI, record stats, …). */
-    private TickListener tickListener;
-
-    public interface TickListener {
-        void onTick(int tickCount, Map<String, Integer> stats);
+    public SimulationEngine() {
     }
 
-    // ── Constructor ──────────────────────────────────────────────────
+    @Nullable
+    private Listener legacyListener;
 
-    public SimulationEngine(int gridWidth, int gridHeight) {
-        this.grid         = new Grid(gridWidth, gridHeight);
-        this.tickCount    = 0;
-        this.state        = SimulationState.STOPPED;
-        this.currentSpeed = SPEED_NORMAL;
+    public void addListener(@NonNull Listener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
     }
 
-    // ── Lifecycle ────────────────────────────────────────────────────
+    public void removeListener(@NonNull Listener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * @deprecated Use {@link #addListener(Listener)} instead.
+     */
+    @Deprecated
+    public void setListener(@Nullable Listener listener) {
+        if (legacyListener != null) {
+            removeListener(legacyListener);
+        }
+        legacyListener = listener;
+        if (legacyListener != null) {
+            addListener(legacyListener);
+            legacyListener.onWorldUpdated(getSnapshot());
+        }
+    }
+
+    public void initializeWorld() {
+        reset(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
+    }
 
     public void start() {
-        state = SimulationState.RUNNING;
+        if (running) {
+            return;
+        }
+        running = true;
+        handler.removeCallbacks(tickRunnable);
+        handler.postDelayed(tickRunnable, getTickDelayMillis());
     }
 
     public void pause() {
-        state = SimulationState.PAUSED;
+        running = false;
+        handler.removeCallbacks(tickRunnable);
     }
 
-    public void resume() {
-        state = SimulationState.RUNNING;
-    }
-
-    public void stop() {
-        state = SimulationState.STOPPED;
-    }
-
-    // ── Speed control ────────────────────────────────────────────────
-
-    /**
-     * Sets the speed using one of the SPEED_* constants.
-     * Passing #SPEED_PAUSED is equivalent to calling pause().
-     */
-    public void setSpeed(int speed) {
-        currentSpeed = speed;
-        if (speed == SPEED_PAUSED) {
-            pause();
-        } else if (state == SimulationState.PAUSED) {
-            resume();
+    public void setSpeedMultiplier(int speedMultiplier) {
+        if (speedMultiplier != 1 && speedMultiplier != 2 && speedMultiplier != 4) {
+            throw new IllegalArgumentException("Speed multiplier must be 1, 2, or 4.");
+        }
+        this.speedMultiplier = speedMultiplier;
+        if (running) {
+            handler.removeCallbacks(tickRunnable);
+            handler.postDelayed(tickRunnable, getTickDelayMillis());
         }
     }
 
-    /** Returns the current tick interval in milliseconds. */
-    public int tickIntervalMs() {
-        return currentSpeed;
-    }
-
-    // ── Core tick ────────────────────────────────────────────────────
-
-    /**
-     * Advances the simulation by exactly one tick.
-     * Should be called only when state == RUNNING.
-     */
-    public void tick() {
-        if (state != SimulationState.RUNNING) return;
-        grid.tick();
+    public void tickOnce() {
+        if (grid == null) {
+            return;
+        }
+        tickLogic.advance(grid);
         tickCount++;
-        if (tickListener != null) {
-            tickListener.onTick(tickCount, getStats());
-        }
+        dispatchWorldUpdate();
     }
 
-    // ── Statistics ───────────────────────────────────────────────────
+    public void reset(int width, int height) {
+        pause();
+        grid = new Grid(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
+        tickCount = 0;
+        seedWorld();
+        dispatchWorldUpdate();
+    }
 
-    /**
-     * Returns a map of className → count for all live entities.
-     * Example key: "Wolf", "Grass".
-     */
-    public Map<String, Integer> getStats() {
-        Map<String, Integer> counts = new HashMap<>();
-        for (Entity e : grid.getAllEntities()) {
-            if (e.isAlive()) {
-                String key = e.getClass().getSimpleName();
-                counts.put(key, counts.getOrDefault(key, 0) + 1);
+    public void loadSnapshot(@NonNull WorldSnapshot snapshot) {
+        pause();
+        grid = Grid.fromSnapshot(snapshot);
+        tickCount = snapshot.tickCount();
+        dispatchWorldUpdate();
+    }
+
+    public boolean placeEntity(@NonNull EntityType type, int x, int y) {
+        if (grid == null) {
+            return false;
+        }
+        boolean placed = grid.placeSelection(type, x, y);
+        if (placed) {
+            dispatchWorldUpdate();
+        }
+        return placed;
+    }
+
+    @NonNull
+    public WorldSnapshot getSnapshot() {
+        if (grid == null) {
+            throw new IllegalStateException("World is not initialized.");
+        }
+        List<WorldSnapshot.CellSnapshot> cells = new ArrayList<>();
+        for (int y = 0; y < grid.getHeight(); y++) {
+            for (int x = 0; x < grid.getWidth(); x++) {
+                Tile tile = grid.getTile(x, y);
+                if (tile == null) {
+                    continue;
+                }
+                WorldSnapshot.PlantSnapshot plantSnapshot = null;
+                if (tile.getPlantState() != null) {
+                    plantSnapshot = new WorldSnapshot.PlantSnapshot(
+                            tile.getPlantState().getPlantType(),
+                            tile.getPlantState().getBlockingHeight(),
+                            tile.getPlantState().isDead(),
+                            tile.getPlantState().getBerryAmount(),
+                            tile.getPlantState().getDurability(),
+                            tile.getPlantState().getBerryRegrowProgress(),
+                            tile.getPlantState().getLifecycleTicksRemaining(),
+                            tile.getPlantState().getTreeVariant(),
+                            tile.getPlantState().getTreeLifeStage()
+                    );
+                }
+                WorldSnapshot.AnimalSnapshot animalSnapshot = null;
+                if (tile.getAnimal() != null) {
+                    animalSnapshot = new WorldSnapshot.AnimalSnapshot(
+                            tile.getAnimal().getType(),
+                            tile.getAnimal().getEnergy(),
+                            tile.getAnimal().getHealth()
+                    );
+                }
+                if (tile.getGrassAmount() == 0 && plantSnapshot == null && animalSnapshot == null) {
+                    continue;
+                }
+                cells.add(new WorldSnapshot.CellSnapshot(
+                        x,
+                        y,
+                        tile.getTerrainType(),
+                        tile.getGrassAmount(),
+                        plantSnapshot,
+                        animalSnapshot
+                ));
             }
         }
-        return counts;
+        return new WorldSnapshot(grid.getWidth(), grid.getHeight(), tickCount, TerrainType.SAND, cells);
     }
 
-    // ── Save / restore ───────────────────────────────────────────────
-
-    /**
-     * Captures the current simulation as a SimulationState.
-     */
-    public com.example.tleilax.simulation.SimulationState captureState(String saveName) {
-        return new com.example.tleilax.simulation.SimulationState(
-                grid.getAllEntities(),
-                grid.width,
-                grid.height,
-                tickCount,
-                saveName
-        );
+    private void seedWorld() {
+        Random random = new Random();
+        grid.seedGrassPatches(random, AppSettings.getGrassCoveragePercent(TleilaxApp.getAppContext()));
+        seedPlantsNearGrass(random);
+        addRandomAnimals(EntityType.WOLF, 3, random);
+        addRandomAnimals(EntityType.RABBIT, 12, random);
+        addRandomAnimals(EntityType.MOUSE, 10, random);
+        addRandomAnimals(EntityType.DEER, 6, random);
     }
 
-    /**
-     * Restores the engine from a previously captured state.
-     * Replaces the current grid entirely.
-     */
-    public void restoreState(com.example.tleilax.simulation.SimulationState savedState) {
-        this.grid      = new Grid(savedState.gridWidth, savedState.gridHeight);
-        this.tickCount = savedState.tickCount;
-        for (Entity e : savedState.entities) {
-            grid.place(e);
+    private void seedPlantsNearGrass(@NonNull Random random) {
+        int berryBushes = Math.max(6, grid.getWidth() / 3);
+        int trees = Math.max(8, grid.getWidth() / 2);
+        int attempts = 0;
+        while ((berryBushes > 0 || trees > 0) && attempts < 800) {
+            int x = random.nextInt(grid.getWidth());
+            int y = random.nextInt(grid.getHeight());
+            Tile tile = grid.getTile(x, y);
+            if (tile == null || !tile.hasGrass()) {
+                attempts++;
+                continue;
+            }
+            boolean grassEdge = false;
+            for (Grid.Position neighbor : grid.getAdjacentPositions(x, y)) {
+                Tile neighborTile = grid.getTile(neighbor.x(), neighbor.y());
+                if (neighborTile != null && !neighborTile.hasGrass()) {
+                    grassEdge = true;
+                    break;
+                }
+            }
+
+            if (trees > 0 && grassEdge && tile.getPlantState() == null) {
+                TreeVariant treeVariant = switch (random.nextInt(3)) {
+                    case 0 -> TreeVariant.LOW;
+                    case 1 -> TreeVariant.MEDIUM;
+                    default -> TreeVariant.TALL;
+                };
+                grid.placeTree(x, y, treeVariant);
+                trees--;
+            } else if (berryBushes > 0 && tile.getPlantState() == null) {
+                grid.placeBerryBush(x, y);
+                berryBushes--;
+            }
+            attempts++;
         }
-        this.state = SimulationState.PAUSED;
     }
 
-    // ── Listener ─────────────────────────────────────────────────────
+    private void addRandomAnimals(@NonNull EntityType type, int count, @NonNull Random random) {
+        int attempts = 0;
+        int placed = 0;
+        int maxAttempts = count * 30;
+        while (placed < count && attempts < maxAttempts) {
+            int x = random.nextInt(grid.getWidth());
+            int y = random.nextInt(grid.getHeight());
+            Entity entity = Entity.create(type, x, y);
+            if (grid.placeAnimal(entity)) {
+                placed++;
+            }
+            attempts++;
+        }
+    }
 
-    public void setTickListener(TickListener listener) {
-        this.tickListener = listener;
+    private long getTickDelayMillis() {
+        return switch (speedMultiplier) {
+            case 2 -> 320L;
+            case 4 -> 160L;
+            default -> 640L;
+        };
+    }
+
+    private void dispatchWorldUpdate() {
+        WorldSnapshot snapshot = getSnapshot();
+        for (Listener l : new ArrayList<>(listeners)) {
+            l.onWorldUpdated(snapshot);
+        }
+    }
+
+    public interface Listener {
+        void onWorldUpdated(@NonNull WorldSnapshot snapshot);
     }
 }
