@@ -53,8 +53,10 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        SimulationSession.getEngine().setListener(this);
-        binding.btnPlayPause.setIconResource(android.R.drawable.ic_media_play);
+        SimulationSession.getEngine().addListener(this);
+        binding.btnPlayPause.setIconResource(
+                SimulationSession.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
+        );
 
         setupPlayPause();
         setupSpeedControl();
@@ -76,11 +78,6 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
 
     @Override
     public void onPause() {
-        SimulationSession.getEngine().pause();
-        if (isPlaying && binding != null) {
-            isPlaying = false;
-            binding.btnPlayPause.setIconResource(android.R.drawable.ic_media_play);
-        }
         super.onPause();
     }
 
@@ -89,15 +86,11 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             if (!worldReady) {
                 return;
             }
-            isPlaying = !isPlaying;
+            boolean playing = !SimulationSession.isPlaying();
+            SimulationSession.setPlaying(playing);
             binding.btnPlayPause.setIconResource(
-                    isPlaying ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
+                    playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
             );
-            if (isPlaying) {
-                SimulationSession.getEngine().start();
-            } else {
-                SimulationSession.getEngine().pause();
-            }
         });
     }
 
@@ -177,8 +170,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
 
     @Override
     public void onDestroyView() {
-        SimulationSession.getEngine().pause();
-        SimulationSession.getEngine().setListener(null);
+        SimulationSession.getEngine().removeListener(this);
         AppSettings.removeListener(this);
         handler.removeCallbacks(loadingProgressRunnable);
         super.onDestroyView();

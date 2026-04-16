@@ -159,6 +159,7 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
             try {
                 SimulationStorage simulationStorage = new SimulationStorage(appContext);
                 simulationStorage.deleteAll();
+                com.example.tleilax.utils.StatTracker.getInstance().clear();
                 mainHandler.post(() -> {
                     AppSettings.resetToDefaults(appContext);
                     SimulationSession.getEngine().reset(SimulationEngine.FIXED_WORLD_SIZE, SimulationEngine.FIXED_WORLD_SIZE);
