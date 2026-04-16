@@ -7,6 +7,7 @@ public final class SimulationSession {
     @NonNull
     private static final SimulationEngine ENGINE = new SimulationEngine();
     private static boolean worldInitialized;
+    private static boolean playing;
 
     private SimulationSession() {
     }
@@ -22,5 +23,18 @@ public final class SimulationSession {
 
     public static void setWorldInitialized(boolean initialized) {
         worldInitialized = initialized;
+    }
+
+    public static boolean isPlaying() {
+        return playing;
+    }
+
+    public static void setPlaying(boolean isPlaying) {
+        playing = isPlaying;
+        if (playing) {
+            ENGINE.start();
+        } else {
+            ENGINE.pause();
+        }
     }
 }

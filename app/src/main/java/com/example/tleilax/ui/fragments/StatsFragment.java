@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,19 +14,16 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.anychart.AnyChart;
-import com.anychart.AnyChartView;
-import com.anychart.chart.common.dataentry.DataEntry;
-import com.anychart.chart.common.dataentry.ValueDataEntry;
-import com.anychart.charts.Cartesian;
-import com.anychart.core.cartesian.series.Line;
-import com.anychart.data.Mapping;
-import com.anychart.data.Set;
-import com.anychart.enums.Anchor;
-import com.anychart.enums.MarkerType;
-import com.anychart.enums.TooltipPositionMode;
 import com.example.tleilax.R;
 import com.example.tleilax.utils.StatisticsSnapshot;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.AbstractMap;
@@ -38,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class StatsFragment extends Fragment {
+public class StatsFragment extends Fragment implements com.example.tleilax.simulation.SimulationEngine.Listener {
 
     public enum GraphMode {
         TOP_CURRENT,
@@ -48,20 +44,16 @@ public class StatsFragment extends Fragment {
     }
 
     private static final LinkedHashSet<String> DEFAULT_ANIMALS =
-            new LinkedHashSet<>(Arrays.asList("Wolf", "Rabbit", "Mouse", "Deer"));
+            new LinkedHashSet<>(Arrays.asList("WOLF", "RABBIT", "MOUSE", "DEER", "Wolf", "Rabbit", "Mouse", "Deer"));
 
     private static final LinkedHashSet<String> DEFAULT_PLANTS =
-            new LinkedHashSet<>(Arrays.asList("Grass", "BerryBush", "Tree"));
-
-    private static final String ACCENT_YELLOW = "#E7C76A";
-    private static final String GRID_MAJOR = "#2F3444";
-    private static final String GRID_MINOR = "#252938";
+            new LinkedHashSet<>(Arrays.asList("BERRY_BUSH", "TREE", "Berry Bush", "Tree", "BerryBush"));
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final List<StatisticsSnapshot> history = new ArrayList<>();
     private final LinkedHashSet<String> knownSpecies = new LinkedHashSet<>();
 
-    private FrameLayout chartContainer;
+    private LineChart lineChart;
     private TextView summaryText;
     private TextView chartPlaceholderText;
 
@@ -70,10 +62,10 @@ public class StatsFragment extends Fragment {
     private MaterialButton btnAnimalsOnly;
     private MaterialButton btnPlantsOnly;
 
-    private AnyChartView anyChartView;
-
     private GraphMode graphMode = GraphMode.TOP_CURRENT;
     private int maxSeries = 5;
+    private long lastRenderTime = 0;
+    private static final long RENDER_THROTTLE_MS = 640;
 
     public StatsFragment() {
     }
@@ -92,124 +84,130 @@ public class StatsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
-        setupToggleButtons();
+        setupToggleButtons(view);
+        setupChartStyle();
         updateButtonStates();
+        
+        List<StatisticsSnapshot> existingHistory = 
+                com.example.tleilax.utils.StatTracker.getInstance().getHistory();
+        history.clear();
+        knownSpecies.clear();
+        history.addAll(existingHistory);
+        for (StatisticsSnapshot snapshot : history) {
+            knownSpecies.addAll(snapshot.getPopulationBySpecies().keySet());
+        }
+        
         renderAll();
 
-        // Demo data for testing.
-        // Remove this later when real simulation data is connected.
-        // loadDemoData();
+        com.example.tleilax.simulation.SimulationSession.getEngine().addListener(this);
     }
 
-    public void submitSnapshot(@NonNull StatisticsSnapshot snapshot) {
-        mainHandler.post(() -> {
-            upsertSnapshot(snapshot);
-            renderAll();
-        });
+    @Override
+    public void onDestroyView() {
+        com.example.tleilax.simulation.SimulationSession.getEngine().removeListener(this);
+        super.onDestroyView();
     }
 
-    public void clearStatistics() {
-        mainHandler.post(() -> {
-            history.clear();
-            knownSpecies.clear();
-            renderAll();
-        });
+    @Override
+    public void onWorldUpdated(@NonNull com.example.tleilax.simulation.WorldSnapshot snapshot) {
+        long now = System.currentTimeMillis();
+        
+        List<StatisticsSnapshot> latestHistory = 
+                com.example.tleilax.utils.StatTracker.getInstance().getHistory();
+        
+        history.clear();
+        knownSpecies.clear(); 
+        
+        if (latestHistory.size() > 100) {
+            history.addAll(latestHistory.subList(latestHistory.size() - 100, latestHistory.size()));
+        } else {
+            history.addAll(latestHistory);
+        }
+        
+        for (StatisticsSnapshot s : history) {
+            knownSpecies.addAll(s.getPopulationBySpecies().keySet());
+        }
+        
+        if (now - lastRenderTime >= RENDER_THROTTLE_MS) {
+            mainHandler.post(this::renderAll);
+        } else {
+            mainHandler.post(this::renderSummary);
+        }
     }
 
     public void setGraphMode(@NonNull GraphMode mode) {
-        mainHandler.post(() -> {
-            graphMode = mode;
-            updateButtonStates();
-            renderAll();
-        });
-    }
-
-    public void setMaxSeries(int maxSeries) {
-        mainHandler.post(() -> {
-            this.maxSeries = Math.max(1, maxSeries);
-            renderAll();
-        });
-    }
-
-    public void loadDemoData() {
-        mainHandler.post(() -> {
-            history.clear();
-            knownSpecies.clear();
-
-            addDemoSnapshot(0,  3, 18, 22,  8, 45, 16, 10);
-            addDemoSnapshot(5,  4, 21, 25,  9, 50, 18, 10);
-            addDemoSnapshot(10, 5, 24, 28, 10, 55, 20, 11);
-            addDemoSnapshot(15, 6, 20, 24,  9, 51, 19, 11);
-            addDemoSnapshot(20, 7, 17, 21,  8, 46, 17, 11);
-            addDemoSnapshot(25, 8, 14, 18,  7, 40, 15, 12);
-            addDemoSnapshot(30, 7, 13, 16,  6, 36, 14, 12);
-            addDemoSnapshot(35, 6, 15, 18,  7, 39, 15, 12);
-            addDemoSnapshot(40, 5, 18, 20,  8, 44, 17, 13);
-            addDemoSnapshot(45, 4, 22, 23,  9, 49, 19, 13);
-            addDemoSnapshot(50, 4, 25, 26, 10, 54, 21, 14);
-
-            renderAll();
-        });
-    }
-
-    private void addDemoSnapshot(
-            int tick,
-            int wolves,
-            int rabbits,
-            int mice,
-            int deer,
-            int grass,
-            int berryBush,
-            int tree
-    ) {
-        java.util.LinkedHashMap<String, Integer> values = new java.util.LinkedHashMap<>();
-        values.put("Wolf", wolves);
-        values.put("Rabbit", rabbits);
-        values.put("Mouse", mice);
-        values.put("Deer", deer);
-        values.put("Grass", grass);
-        values.put("BerryBush", berryBush);
-        values.put("Tree", tree);
-
-        upsertSnapshot(new StatisticsSnapshot(tick, values));
+        if (graphMode == mode) return;
+        graphMode = mode;
+        updateButtonStates();
+        renderAll();
     }
 
     private void bindViews(@NonNull View root) {
-        chartContainer = root.findViewById(R.id.any_chart_container);
+        lineChart = root.findViewById(R.id.line_chart);
         summaryText = root.findViewById(R.id.text_summary);
+        chartPlaceholderText = root.findViewById(R.id.text_chart_placeholder);
 
         btnTopSpecies = root.findViewById(R.id.btn_top_species);
         btnAllSpecies = root.findViewById(R.id.btn_all_species);
         btnAnimalsOnly = root.findViewById(R.id.btn_animals_only);
         btnPlantsOnly = root.findViewById(R.id.btn_plants_only);
+    }
 
-        if (chartContainer != null) {
-            for (int i = 0; i < chartContainer.getChildCount(); i++) {
-                View child = chartContainer.getChildAt(i);
-                if (child instanceof TextView) {
-                    chartPlaceholderText = (TextView) child;
-                    break;
+    private void setupToggleButtons(View root) {
+        com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = 
+                root.findViewById(R.id.graph_toggle_group);
+        
+        if (toggleGroup != null) {
+            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked) return;
+                
+                if (checkedId == R.id.btn_top_species) {
+                    setGraphMode(GraphMode.TOP_CURRENT);
+                } else if (checkedId == R.id.btn_all_species) {
+                    setGraphMode(GraphMode.ALL_SPECIES);
+                } else if (checkedId == R.id.btn_animals_only) {
+                    setGraphMode(GraphMode.ANIMALS_ONLY);
+                } else if (checkedId == R.id.btn_plants_only) {
+                    setGraphMode(GraphMode.PLANTS_ONLY);
                 }
-            }
+            });
         }
     }
 
-    private void setupToggleButtons() {
-        if (btnTopSpecies != null) {
-            btnTopSpecies.setOnClickListener(v -> setGraphMode(GraphMode.TOP_CURRENT));
-        }
+    private void setupChartStyle() {
+        if (lineChart == null) return;
 
-        if (btnAllSpecies != null) {
-            btnAllSpecies.setOnClickListener(v -> setGraphMode(GraphMode.ALL_SPECIES));
-        }
+        lineChart.getDescription().setEnabled(false);
+        lineChart.setDrawGridBackground(false);
+        lineChart.setBackgroundColor(Color.TRANSPARENT);
+        lineChart.setTouchEnabled(true);
+        lineChart.setDragEnabled(true);
+        lineChart.setScaleEnabled(true);
+        lineChart.setPinchZoom(true);
 
-        if (btnAnimalsOnly != null) {
-            btnAnimalsOnly.setOnClickListener(v -> setGraphMode(GraphMode.ANIMALS_ONLY));
-        }
+        int textMuted = ContextCompat.getColor(requireContext(), R.color.text_muted);
+        int gridColor = Color.parseColor("#3c3836");
 
-        if (btnPlantsOnly != null) {
-            btnPlantsOnly.setOnClickListener(v -> setGraphMode(GraphMode.PLANTS_ONLY));
-        }
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextColor(textMuted);
+        xAxis.setDrawGridLines(true);
+        xAxis.setGridColor(gridColor);
+
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setTextColor(textMuted);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setGridColor(gridColor);
+        leftAxis.setAxisMinimum(0f);
+
+        lineChart.getAxisRight().setEnabled(false);
+
+        Legend legend = lineChart.getLegend();
+        legend.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setDrawInside(false);
     }
 
     private void updateButtonStates() {
@@ -220,179 +218,78 @@ public class StatsFragment extends Fragment {
     }
 
     private void updateSingleButtonStyle(@Nullable MaterialButton button, boolean selected) {
-        if (button == null) {
-            return;
-        }
+        if (button == null) return;
 
-        button.setTextColor(Color.parseColor(ACCENT_YELLOW));
+        int gold = ContextCompat.getColor(requireContext(), R.color.accent_gold);
+        button.setTextColor(gold);
         button.setStrokeColorResource(R.color.border_subtle);
 
         if (selected) {
-            button.setBackgroundColor(Color.parseColor("#33E7C76A"));
-            button.setStrokeColorResource(R.color.border_subtle);
+            button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#33D79921")));
         } else {
-            button.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.bg_surface));
-            button.setStrokeColorResource(R.color.border_subtle);
+            button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.bg_surface)));
         }
-    }
-
-    private void upsertSnapshot(@NonNull StatisticsSnapshot snapshot) {
-        int insertIndex = history.size();
-
-        for (int i = 0; i < history.size(); i++) {
-            int existingTick = history.get(i).getTick();
-
-            if (existingTick == snapshot.getTick()) {
-                history.set(i, snapshot);
-                knownSpecies.addAll(snapshot.getPopulationBySpecies().keySet());
-                return;
-            }
-
-            if (existingTick > snapshot.getTick()) {
-                insertIndex = i;
-                break;
-            }
-        }
-
-        history.add(insertIndex, snapshot);
-        knownSpecies.addAll(snapshot.getPopulationBySpecies().keySet());
     }
 
     private void renderAll() {
+        lastRenderTime = System.currentTimeMillis();
         renderChart();
         renderSummary();
     }
 
     private void renderChart() {
-        if (chartContainer == null) {
-            return;
-        }
+        if (lineChart == null || !isAdded()) return;
 
         List<String> speciesToGraph = getSpeciesToGraph();
         boolean hasData = !history.isEmpty() && !speciesToGraph.isEmpty();
 
         if (!hasData) {
-            removeChartView();
-            if (chartPlaceholderText != null) {
-                chartPlaceholderText.setVisibility(View.VISIBLE);
-            }
+            lineChart.setVisibility(View.GONE);
+            if (chartPlaceholderText != null) chartPlaceholderText.setVisibility(View.VISIBLE);
             return;
         }
 
-        if (chartPlaceholderText != null) {
-            chartPlaceholderText.setVisibility(View.GONE);
-        }
+        if (chartPlaceholderText != null) chartPlaceholderText.setVisibility(View.GONE);
+        lineChart.setVisibility(View.VISIBLE);
 
-        recreateChartView();
-
-        List<DataEntry> dataEntries = new ArrayList<>();
-        for (StatisticsSnapshot snapshot : history) {
-            dataEntries.add(new ChartDataEntry(
-                    snapshot.getTick(),
-                    speciesToGraph,
-                    snapshot.getPopulationBySpecies()
-            ));
-        }
-
-        Cartesian cartesian = AnyChart.line();
-        cartesian.animation(false);
-        cartesian.padding(12d, 12d, 12d, 12d);
-        cartesian.title(buildChartTitle(speciesToGraph));
-        cartesian.yAxis(0).title("Population");
-        cartesian.xAxis(0).title("Tick");
-        cartesian.crosshair().enabled(true);
-        cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
-        cartesian.legend().enabled(true);
-
-        applyDarkChartStyle(cartesian);
-
-        Set set = Set.instantiate();
-        set.data(dataEntries);
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        int[] colors = {
+            Color.parseColor("#fb4934"), // red
+            Color.parseColor("#b8bb26"), // green
+            Color.parseColor("#fabd2f"), // yellow
+            Color.parseColor("#83a598"), // blue
+            Color.parseColor("#d3869b"), // purple
+            Color.parseColor("#8ec07c"), // aqua
+            Color.parseColor("#fe8019")  // orange
+        };
 
         for (int i = 0; i < speciesToGraph.size(); i++) {
-            String mappingKey = i == 0 ? "value" : "value" + i;
-            Mapping mapping = set.mapAs(
-                    String.format(Locale.US, "{ x: 'x', value: '%s' }", mappingKey)
-            );
+            String species = speciesToGraph.get(i);
+            ArrayList<Entry> entries = new ArrayList<>();
+            
+            for (StatisticsSnapshot snapshot : history) {
+                entries.add(new Entry(snapshot.getTick(), getPopulation(snapshot, species)));
+            }
 
-            Line line = cartesian.line(mapping);
-            line.name(speciesToGraph.get(i));
-            line.hovered().markers().enabled(true);
-            line.hovered().markers().type(MarkerType.CIRCLE).size(4d);
-            line.tooltip()
-                    .position("right")
-                    .anchor(Anchor.LEFT_CENTER)
-                    .offsetX(5d)
-                    .offsetY(5d);
+            LineDataSet set = new LineDataSet(entries, species);
+            set.setColor(colors[i % colors.length]);
+            set.setLineWidth(2f);
+            set.setDrawCircles(false);
+            set.setDrawValues(false);
+            set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSets.add(set);
         }
 
-        anyChartView.setChart(cartesian);
-        anyChartView.setVisibility(View.VISIBLE);
-        anyChartView.invalidate();
-        anyChartView.requestLayout();
-    }
-
-    private void recreateChartView() {
-        removeChartView();
-
-        anyChartView = new AnyChartView(requireContext());
-        anyChartView.setLayoutParams(new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
-        anyChartView.setBackgroundColor(Color.TRANSPARENT);
-
-        int insertIndex = chartPlaceholderText == null ? chartContainer.getChildCount() : 1;
-        chartContainer.addView(anyChartView, insertIndex);
-    }
-
-    private void removeChartView() {
-        if (chartContainer != null && anyChartView != null) {
-            chartContainer.removeView(anyChartView);
-        }
-        anyChartView = null;
-    }
-
-    private void applyDarkChartStyle(@NonNull Cartesian cartesian) {
-        String surface = getColorHex(R.color.bg_surface);
-        String textPrimary = getColorHex(R.color.text_primary);
-        String textMuted = getColorHex(R.color.text_muted);
-
-        cartesian.background().fill(surface);
-
-        cartesian.title().fontColor(textPrimary);
-
-        cartesian.xAxis(0).labels().fontColor(textMuted);
-        cartesian.yAxis(0).labels().fontColor(textMuted);
-
-        cartesian.xAxis(0).title().fontColor(textPrimary);
-        cartesian.yAxis(0).title().fontColor(textPrimary);
-
-        cartesian.legend().fontColor(textPrimary);
-
-        cartesian.xGrid(0).stroke(GRID_MAJOR);
-        cartesian.yGrid(0).stroke(GRID_MAJOR);
-        cartesian.xMinorGrid(0).stroke(GRID_MINOR);
-        cartesian.yMinorGrid(0).stroke(GRID_MINOR);
-    }
-
-    private String getColorHex(int colorResId) {
-        int color = ContextCompat.getColor(requireContext(), colorResId);
-        return String.format("#%06X", (0xFFFFFF & color));
+        LineData data = new LineData(dataSets);
+        lineChart.setData(data);
+        lineChart.invalidate();
     }
 
     private void renderSummary() {
-        if (summaryText == null) {
-            return;
-        }
-
-        if (history.isEmpty()) {
-            summaryText.setText("Simulation running · 0 ticks");
-            return;
-        }
+        if (summaryText == null || history.isEmpty()) return;
 
         StatisticsSnapshot latest = history.get(history.size() - 1);
-
         int aliveSpecies = 0;
         int extinctSpecies = 0;
         String dominantSpecies = "None";
@@ -400,12 +297,7 @@ public class StatsFragment extends Fragment {
 
         for (String species : knownSpecies) {
             int population = getPopulation(latest, species);
-
-            if (population > 0) {
-                aliveSpecies++;
-            } else {
-                extinctSpecies++;
-            }
+            if (population > 0) aliveSpecies++; else extinctSpecies++;
 
             if (population > maxPopulationValue) {
                 maxPopulationValue = population;
@@ -414,76 +306,51 @@ public class StatsFragment extends Fragment {
         }
 
         List<String> speciesToGraph = getSpeciesToGraph();
-
-        String summary =
-                "Tick " + latest.getTick() +
-                        " · Total population " + latest.getTotalPopulation() +
-                        "\nAlive species: " + aliveSpecies +
-                        " · Extinct species: " + extinctSpecies +
-                        "\nDominant: " + dominantSpecies +
-                        " · Status: " + resolveStatus(latest) +
-                        "\nGraph: " + describeGraphMode(speciesToGraph);
+        String summary = String.format(Locale.US,
+                "Tick %d · Population %d · Grass %.1f%%\nAlive species: %d · Extinct: %d\nDominant: %s · Status: %s\nGraph: %s",
+                latest.getTick(), latest.getTotalPopulation(), latest.getGrassCoverage() * 100,
+                aliveSpecies, extinctSpecies, dominantSpecies, resolveStatus(latest), describeGraphMode(speciesToGraph));
 
         summaryText.setText(summary);
     }
 
     private List<String> getSpeciesToGraph() {
         switch (graphMode) {
-            case ALL_SPECIES:
-                return new ArrayList<>(knownSpecies);
-
-            case ANIMALS_ONLY:
-                return filterKnownSpecies(DEFAULT_ANIMALS);
-
-            case PLANTS_ONLY:
-                return filterKnownSpecies(DEFAULT_PLANTS);
-
+            case ALL_SPECIES: return new ArrayList<>(knownSpecies);
+            case ANIMALS_ONLY: return filterKnownSpecies(DEFAULT_ANIMALS);
+            case PLANTS_ONLY: return filterKnownSpecies(DEFAULT_PLANTS);
             case TOP_CURRENT:
-            default:
-                return getTopSpeciesByCurrentPopulation(maxSeries);
+            default: return getTopSpeciesByCurrentPopulation(maxSeries);
         }
     }
 
     private List<String> filterKnownSpecies(@NonNull LinkedHashSet<String> allowedSpecies) {
         List<String> result = new ArrayList<>();
         for (String species : knownSpecies) {
-            if (allowedSpecies.contains(species)) {
-                result.add(species);
+            for (String allowed : allowedSpecies) {
+                if (allowed.equalsIgnoreCase(species)) {
+                    result.add(species);
+                    break;
+                }
             }
         }
         return result;
     }
 
     private List<String> getTopSpeciesByCurrentPopulation(int limit) {
-        List<String> result = new ArrayList<>();
-
-        if (history.isEmpty()) {
-            return result;
-        }
-
+        if (history.isEmpty()) return new ArrayList<>();
         StatisticsSnapshot latest = history.get(history.size() - 1);
         List<Map.Entry<String, Integer>> populations = new ArrayList<>();
 
         for (String species : knownSpecies) {
-            populations.add(new AbstractMap.SimpleEntry<>(
-                    species,
-                    getPopulation(latest, species)
-            ));
+            if (species.equalsIgnoreCase("GRASS")) continue;
+            populations.add(new AbstractMap.SimpleEntry<>(species, getPopulation(latest, species)));
         }
 
-        populations.sort((a, b) -> {
-            int byPopulation = Integer.compare(b.getValue(), a.getValue());
-            if (byPopulation != 0) {
-                return byPopulation;
-            }
-            return a.getKey().compareToIgnoreCase(b.getKey());
-        });
-
+        populations.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        List<String> result = new ArrayList<>();
         int count = Math.min(Math.max(1, limit), populations.size());
-        for (int i = 0; i < count; i++) {
-            result.add(populations.get(i).getKey());
-        }
-
+        for (int i = 0; i < count; i++) result.add(populations.get(i).getKey());
         return result;
     }
 
@@ -492,97 +359,26 @@ public class StatsFragment extends Fragment {
         return value == null ? 0 : value;
     }
 
-    private String buildChartTitle(@NonNull List<String> speciesToGraph) {
-        switch (graphMode) {
-            case ALL_SPECIES:
-                return "All Species";
-
-            case ANIMALS_ONLY:
-                return "Animals Only";
-
-            case PLANTS_ONLY:
-                return "Plants Only";
-
-            case TOP_CURRENT:
-            default:
-                return "Top " + speciesToGraph.size() + " Species";
-        }
-    }
-
     private String describeGraphMode(@NonNull List<String> speciesToGraph) {
         switch (graphMode) {
-            case ALL_SPECIES:
-                return "showing all " + speciesToGraph.size() + " species";
-
-            case ANIMALS_ONLY:
-                return "showing animals only (" + speciesToGraph.size() + ")";
-
-            case PLANTS_ONLY:
-                return "showing plants only (" + speciesToGraph.size() + ")";
-
+            case ALL_SPECIES: return "showing all " + speciesToGraph.size() + " species";
+            case ANIMALS_ONLY: return "showing animals only (" + speciesToGraph.size() + ")";
+            case PLANTS_ONLY: return "showing plants only (" + speciesToGraph.size() + ")";
             case TOP_CURRENT:
-            default:
-                return "showing top " + speciesToGraph.size() + " by current population";
+            default: return "showing top " + speciesToGraph.size() + " by current population";
         }
     }
 
     private String resolveStatus(@NonNull StatisticsSnapshot latest) {
-        String explicitStatus = latest.getStatus();
-        if (explicitStatus != null && !explicitStatus.trim().isEmpty()) {
-            return explicitStatus;
-        }
-
-        int totalPopulation = latest.getTotalPopulation();
-
-        if (totalPopulation == 0) {
-            return "Extinct";
-        }
-
-        if (history.size() < 2) {
-            return "Starting";
-        }
-
-        int previousPopulation = history.get(history.size() - 2).getTotalPopulation();
-
-        if (previousPopulation == 0 && totalPopulation > 0) {
-            return "Recovering";
-        }
-
-        int delta = totalPopulation - previousPopulation;
-        int threshold = Math.max(2, (int) Math.ceil(previousPopulation * 0.10));
-
-        if (delta >= threshold) {
-            return "Growing";
-        }
-
-        if (delta <= -threshold) {
-            return "Declining";
-        }
-
+        if (history.size() < 2) return "Starting";
+        int prev = history.get(history.size() - 2).getTotalPopulation();
+        int curr = latest.getTotalPopulation();
+        if (curr == 0) return "Extinct";
+        if (prev == 0) return "Recovering";
+        int delta = curr - prev;
+        int threshold = Math.max(2, (int) Math.ceil(prev * 0.10));
+        if (delta >= threshold) return "Growing";
+        if (delta <= -threshold) return "Declining";
         return "Stable";
-    }
-
-    private static final class ChartDataEntry extends ValueDataEntry {
-
-        ChartDataEntry(int tick, List<String> species, Map<String, Integer> populations) {
-            super(String.valueOf(tick), getPopulationForIndex(species, populations, 0));
-
-            for (int i = 1; i < species.size(); i++) {
-                setValue("value" + i, getPopulationForIndex(species, populations, i));
-            }
-        }
-
-        private static int getPopulationForIndex(
-                List<String> species,
-                Map<String, Integer> populations,
-                int index
-        ) {
-            if (index < 0 || index >= species.size()) {
-                return 0;
-            }
-
-            Integer value = populations.get(species.get(index));
-            return value == null ? 0 : value;
-        }
     }
 }

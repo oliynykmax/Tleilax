@@ -43,9 +43,9 @@
                 android:layout_height="wrap_content"
                 android:text="Top 5"
                 android:textAllCaps="false"
-                android:textColor="#E7C76A"
+                android:textColor="@color/accent_gold"
                 app:backgroundTint="@color/bg_surface"
-                app:strokeColor="#E7C76A" />
+                app:strokeColor="@color/accent_gold" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_all_species"
@@ -54,9 +54,9 @@
                 android:layout_height="wrap_content"
                 android:text="All"
                 android:textAllCaps="false"
-                android:textColor="#E7C76A"
+                android:textColor="@color/accent_gold"
                 app:backgroundTint="@color/bg_surface"
-                app:strokeColor="#E7C76A" />
+                app:strokeColor="@color/accent_gold" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_animals_only"
@@ -65,9 +65,9 @@
                 android:layout_height="wrap_content"
                 android:text="Animals"
                 android:textAllCaps="false"
-                android:textColor="#E7C76A"
+                android:textColor="@color/accent_gold"
                 app:backgroundTint="@color/bg_surface"
-                app:strokeColor="#E7C76A" />
+                app:strokeColor="@color/accent_gold" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_plants_only"
@@ -77,8 +77,8 @@
                 android:text="Plants"
                 android:textAllCaps="false"
                 app:backgroundTint="@color/bg_surface"
-                app:strokeColor="#E7C76A"
-                android:textColor="#E7C76A" />
+                app:strokeColor="@color/accent_gold"
+                android:textColor="@color/accent_gold" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
     </HorizontalScrollView>
@@ -94,12 +94,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/graph_toggle_scroll">
 
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/canvas_border" />
 
         <TextView
+            android:id="@+id/text_chart_placeholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

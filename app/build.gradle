@@ -38,8 +38,8 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
-    // Charting library used by the stats UI
-    implementation("com.github.AnyChart:AnyChart-Android:1.1.5")
+    // Native charting library (free, no watermarks, Apache 2.0)
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     // Room (from main) — keep alongside chart dependency
     implementation libs.room.runtime
