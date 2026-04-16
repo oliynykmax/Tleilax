@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <!-- Top Bar: Title + Cycle Counter -->
+    <LinearLayout
+        android:id="@+id/status_header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:background="@color/bg_surface"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tleilax"
+            android:textColor="@color/accent_gold"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="18sp"
+            android:letterSpacing="0.02" />
+
+        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/text_tick_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cycle 0"
+            android:textColor="@color/text_muted"
+            android:fontFamily="sans-serif"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Animal Species Bar -->
+    <LinearLayout
+        android:id="@+id/species_toggle_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:background="@color/bg_surface_elevated"
+        app:layout_constraintTop_toBottomOf="@id/status_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_wolf"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🐺"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_rabbit"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🐰"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_mouse"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🐭"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_deer"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🦌"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_grass"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🌿"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_berry_bush"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🫐"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_tree"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="🌲"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <!-- Canvas Area -->
+    <FrameLayout
+        android:id="@+id/canvas_frame"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/canvas_border"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintBottom_toTopOf="@id/controls_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/species_toggle_group"
+        app:layout_constraintVertical_bias="0.5">
+
+        <com.example.tleilax.ui.view.SimulationCanvasView
+            android:id="@+id/simulation_canvas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp" />
+
+        <FrameLayout
+            android:id="@+id/loading_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp"
+            android:background="@drawable/loading_canvas_scrim"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="28dp"
+                android:paddingVertical="24dp">
+
+                <TextView
+                    android:id="@+id/text_loading_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_gold"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.08"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/loading_title"
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="21sp" />
+
+                <TextView
+                    android:id="@+id/text_loading_stage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/text_secondary"
+                    android:fontFamily="monospace"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progress_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:max="100"
+                    android:progress="0"
+                    app:indicatorColor="@color/accent_gold"
+                    app:trackColor="@color/border_subtle" />
+            </LinearLayout>
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Controls -->
+    <LinearLayout
+        android:id="@+id/controls_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Play/Pause Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_play_pause"
+            style="@style/Widget.Tleilax.Button.Accent"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconSize="20dp"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="@color/accent_gold"
+            app:rippleColor="@android:color/transparent" />
+
+        <View android:layout_width="8dp" android:layout_height="0dp" />
+
+        <!-- Speed Segmented Control -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/speed_toggle_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="true"
+            app:checkedButton="@id/btn_speed_1x">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_speed_1x"
+                style="@style/Widget.Tleilax.Button.Segment"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="1x"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_speed_2x"
+                style="@style/Widget.Tleilax.Button.Segment"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="2x"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_speed_4x"
+                style="@style/Widget.Tleilax.Button.Segment"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="4x"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <View android:layout_width="16dp" android:layout_height="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_reset"
+            style="@style/Widget.Tleilax.Button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:icon="@android:drawable/ic_menu_rotate"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="20dp"
+            app:iconTint="@color/text_secondary" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
