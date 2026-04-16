@@ -26,9 +26,9 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -37,17 +37,32 @@ import java.util.Map;
 public class StatsFragment extends Fragment implements com.example.tleilax.simulation.SimulationEngine.Listener {
 
     public enum GraphMode {
-        TOP_CURRENT,
         ALL_SPECIES,
         ANIMALS_ONLY,
         PLANTS_ONLY
     }
 
     private static final LinkedHashSet<String> DEFAULT_ANIMALS =
-            new LinkedHashSet<>(Arrays.asList("WOLF", "RABBIT", "MOUSE", "DEER", "Wolf", "Rabbit", "Mouse", "Deer"));
+            new LinkedHashSet<>(Arrays.asList("WOLF", "RABBIT", "MOUSE", "DEER"));
 
     private static final LinkedHashSet<String> DEFAULT_PLANTS =
-            new LinkedHashSet<>(Arrays.asList("BERRY_BUSH", "TREE", "Berry Bush", "Tree", "BerryBush"));
+            new LinkedHashSet<>(Arrays.asList("BERRY_BUSH", "TREE"));
+
+    /** Stable color mapping — keyed by EntityType name() / PlantType name(). */
+    private static final LinkedHashMap<String, Integer> SPECIES_COLORS = new LinkedHashMap<>();
+    static {
+        // Use the same render colors from EntityType for visual consistency
+        for (com.example.tleilax.model.EntityType type : com.example.tleilax.model.EntityType.values()) {
+            SPECIES_COLORS.put(type.name(), type.getRenderColor());
+        }
+        for (com.example.tleilax.simulation.PlantType type : com.example.tleilax.simulation.PlantType.values()) {
+            if (!SPECIES_COLORS.containsKey(type.name())) {
+                SPECIES_COLORS.put(type.name(), type.getRenderColor());
+            }
+        }
+    }
+
+    private static final int FALLBACK_COLOR = Color.parseColor("#928374");
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final List<StatisticsSnapshot> history = new ArrayList<>();
@@ -57,15 +72,14 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
     private TextView summaryText;
     private TextView chartPlaceholderText;
 
-    private MaterialButton btnTopSpecies;
     private MaterialButton btnAllSpecies;
     private MaterialButton btnAnimalsOnly;
     private MaterialButton btnPlantsOnly;
 
-    private GraphMode graphMode = GraphMode.TOP_CURRENT;
-    private int maxSeries = 5;
+    private GraphMode graphMode = GraphMode.ALL_SPECIES;
     private long lastRenderTime = 0;
     private static final long RENDER_THROTTLE_MS = 640;
+    private static final int MAX_DISPLAY_HISTORY = 500;
 
     public StatsFragment() {
     }
@@ -92,11 +106,12 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
                 com.example.tleilax.utils.StatTracker.getInstance().getHistory();
         history.clear();
         knownSpecies.clear();
-        history.addAll(existingHistory);
+        int start = Math.max(0, existingHistory.size() - MAX_DISPLAY_HISTORY);
+        history.addAll(existingHistory.subList(start, existingHistory.size()));
         for (StatisticsSnapshot snapshot : history) {
             knownSpecies.addAll(snapshot.getPopulationBySpecies().keySet());
         }
-        
+
         renderAll();
 
         com.example.tleilax.simulation.SimulationSession.getEngine().addListener(this);
@@ -117,12 +132,8 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         
         history.clear();
         knownSpecies.clear(); 
-        
-        if (latestHistory.size() > 100) {
-            history.addAll(latestHistory.subList(latestHistory.size() - 100, latestHistory.size()));
-        } else {
-            history.addAll(latestHistory);
-        }
+        int start = Math.max(0, latestHistory.size() - MAX_DISPLAY_HISTORY);
+        history.addAll(latestHistory.subList(start, latestHistory.size()));
         
         for (StatisticsSnapshot s : history) {
             knownSpecies.addAll(s.getPopulationBySpecies().keySet());
@@ -147,7 +158,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         summaryText = root.findViewById(R.id.text_summary);
         chartPlaceholderText = root.findViewById(R.id.text_chart_placeholder);
 
-        btnTopSpecies = root.findViewById(R.id.btn_top_species);
         btnAllSpecies = root.findViewById(R.id.btn_all_species);
         btnAnimalsOnly = root.findViewById(R.id.btn_animals_only);
         btnPlantsOnly = root.findViewById(R.id.btn_plants_only);
@@ -160,10 +170,8 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         if (toggleGroup != null) {
             toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
                 if (!isChecked) return;
-                
-                if (checkedId == R.id.btn_top_species) {
-                    setGraphMode(GraphMode.TOP_CURRENT);
-                } else if (checkedId == R.id.btn_all_species) {
+
+                if (checkedId == R.id.btn_all_species) {
                     setGraphMode(GraphMode.ALL_SPECIES);
                 } else if (checkedId == R.id.btn_animals_only) {
                     setGraphMode(GraphMode.ANIMALS_ONLY);
@@ -180,10 +188,10 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         lineChart.getDescription().setEnabled(false);
         lineChart.setDrawGridBackground(false);
         lineChart.setBackgroundColor(Color.TRANSPARENT);
-        lineChart.setTouchEnabled(true);
-        lineChart.setDragEnabled(true);
-        lineChart.setScaleEnabled(true);
-        lineChart.setPinchZoom(true);
+        lineChart.setTouchEnabled(false);
+        lineChart.setDragEnabled(false);
+        lineChart.setScaleEnabled(false);
+        lineChart.setPinchZoom(false);
 
         int textMuted = ContextCompat.getColor(requireContext(), R.color.text_muted);
         int gridColor = Color.parseColor("#3c3836");
@@ -205,13 +213,14 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         Legend legend = lineChart.getLegend();
         legend.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary));
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         legend.setDrawInside(false);
+        legend.setWordWrapEnabled(true);
+        legend.setTextSize(11f);
     }
 
     private void updateButtonStates() {
-        updateSingleButtonStyle(btnTopSpecies, graphMode == GraphMode.TOP_CURRENT);
         updateSingleButtonStyle(btnAllSpecies, graphMode == GraphMode.ALL_SPECIES);
         updateSingleButtonStyle(btnAnimalsOnly, graphMode == GraphMode.ANIMALS_ONLY);
         updateSingleButtonStyle(btnPlantsOnly, graphMode == GraphMode.PLANTS_ONLY);
@@ -254,15 +263,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         lineChart.setVisibility(View.VISIBLE);
 
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        int[] colors = {
-            Color.parseColor("#fb4934"), // red
-            Color.parseColor("#b8bb26"), // green
-            Color.parseColor("#fabd2f"), // yellow
-            Color.parseColor("#83a598"), // blue
-            Color.parseColor("#d3869b"), // purple
-            Color.parseColor("#8ec07c"), // aqua
-            Color.parseColor("#fe8019")  // orange
-        };
 
         for (int i = 0; i < speciesToGraph.size(); i++) {
             String species = speciesToGraph.get(i);
@@ -272,8 +272,8 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
                 entries.add(new Entry(snapshot.getTick(), getPopulation(snapshot, species)));
             }
 
-            LineDataSet set = new LineDataSet(entries, species);
-            set.setColor(colors[i % colors.length]);
+            LineDataSet set = new LineDataSet(entries, formatSpeciesName(species));
+            set.setColor(getStableColor(species));
             set.setLineWidth(2f);
             set.setDrawCircles(false);
             set.setDrawValues(false);
@@ -283,6 +283,9 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
 
         LineData data = new LineData(dataSets);
         lineChart.setData(data);
+
+        // Fit all data into the fixed-size chart
+        lineChart.fitScreen();
         lineChart.invalidate();
     }
 
@@ -301,7 +304,7 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
 
             if (population > maxPopulationValue) {
                 maxPopulationValue = population;
-                dominantSpecies = species + " (" + population + ")";
+                dominantSpecies = formatSpeciesName(species) + " (" + population + ")";
             }
         }
 
@@ -316,11 +319,10 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
 
     private List<String> getSpeciesToGraph() {
         switch (graphMode) {
-            case ALL_SPECIES: return new ArrayList<>(knownSpecies);
             case ANIMALS_ONLY: return filterKnownSpecies(DEFAULT_ANIMALS);
             case PLANTS_ONLY: return filterKnownSpecies(DEFAULT_PLANTS);
-            case TOP_CURRENT:
-            default: return getTopSpeciesByCurrentPopulation(maxSeries);
+            case ALL_SPECIES:
+            default: return new ArrayList<>(knownSpecies);
         }
     }
 
@@ -337,35 +339,57 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         return result;
     }
 
-    private List<String> getTopSpeciesByCurrentPopulation(int limit) {
-        if (history.isEmpty()) return new ArrayList<>();
-        StatisticsSnapshot latest = history.get(history.size() - 1);
-        List<Map.Entry<String, Integer>> populations = new ArrayList<>();
-
-        for (String species : knownSpecies) {
-            if (species.equalsIgnoreCase("GRASS")) continue;
-            populations.add(new AbstractMap.SimpleEntry<>(species, getPopulation(latest, species)));
-        }
-
-        populations.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
-        List<String> result = new ArrayList<>();
-        int count = Math.min(Math.max(1, limit), populations.size());
-        for (int i = 0; i < count; i++) result.add(populations.get(i).getKey());
-        return result;
-    }
-
     private int getPopulation(@NonNull StatisticsSnapshot snapshot, @NonNull String species) {
         Integer value = snapshot.getPopulationBySpecies().get(species);
         return value == null ? 0 : value;
     }
 
+    /**
+     * Returns a stable color for a species keyed by its enum name.
+     * Uses the same render color from EntityType/PlantType so the chart
+     * line always matches the entity's in-world color.
+     */
+    private int getStableColor(@NonNull String species) {
+        Integer color = SPECIES_COLORS.get(species);
+        if (color != null) return color;
+
+        // Try case-insensitive fallback for any variant naming
+        for (Map.Entry<String, Integer> entry : SPECIES_COLORS.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(species)) {
+                return entry.getValue();
+            }
+        }
+        return FALLBACK_COLOR;
+    }
+
+    /**
+     * Formats an enum-style species name into a human-readable label.
+     * E.g. "BERRY_BUSH" → "Berry Bush", "WOLF" → "Wolf".
+     */
+    private String formatSpeciesName(@NonNull String species) {
+        // First try EntityType.displayName for a canonical label
+        for (com.example.tleilax.model.EntityType type : com.example.tleilax.model.EntityType.values()) {
+            if (type.name().equalsIgnoreCase(species)) {
+                return type.getDisplayName();
+            }
+        }
+        // Fallback: replace underscores with spaces and title-case
+        String[] parts = species.replace('_', ' ').split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < parts.length; i++) {
+            if (i > 0) sb.append(' ');
+            sb.append(Character.toUpperCase(parts[i].charAt(0)))
+              .append(parts[i].substring(1).toLowerCase(Locale.US));
+        }
+        return sb.toString();
+    }
+
     private String describeGraphMode(@NonNull List<String> speciesToGraph) {
         switch (graphMode) {
-            case ALL_SPECIES: return "showing all " + speciesToGraph.size() + " species";
             case ANIMALS_ONLY: return "showing animals only (" + speciesToGraph.size() + ")";
             case PLANTS_ONLY: return "showing plants only (" + speciesToGraph.size() + ")";
-            case TOP_CURRENT:
-            default: return "showing top " + speciesToGraph.size() + " by current population";
+            case ALL_SPECIES:
+            default: return "showing all " + speciesToGraph.size() + " species";
         }
     }
 
