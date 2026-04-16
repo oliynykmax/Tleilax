@@ -1,5 +1,6 @@
 package com.example.tleilax;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -11,9 +12,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.tleilax.utils.MusicManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private MusicManager musicManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupNavigation();
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        musicManager = new MusicManager(this);
+        musicManager.start(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (musicManager != null) {
+            musicManager.pause();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (musicManager != null) {
+            musicManager.resume(this);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (musicManager != null) {
+            musicManager.release();
+            musicManager = null;
+        }
     }
 
     private void setupNavigation() {
