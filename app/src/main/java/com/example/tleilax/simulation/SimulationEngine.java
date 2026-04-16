@@ -35,16 +35,37 @@ public class SimulationEngine {
     private boolean running;
     private int speedMultiplier = 1;
     private long tickCount;
-    @Nullable
-    private Listener listener;
+    @NonNull
+    private final List<Listener> listeners = new ArrayList<>();
 
     public SimulationEngine() {
     }
 
+    @Nullable
+    private Listener legacyListener;
+
+    public void addListener(@NonNull Listener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(@NonNull Listener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * @deprecated Use {@link #addListener(Listener)} instead.
+     */
+    @Deprecated
     public void setListener(@Nullable Listener listener) {
-        this.listener = listener;
-        if (grid != null) {
-            dispatchWorldUpdate();
+        if (legacyListener != null) {
+            removeListener(legacyListener);
+        }
+        legacyListener = listener;
+        if (legacyListener != null) {
+            addListener(legacyListener);
+            legacyListener.onWorldUpdated(getSnapshot());
         }
     }
 
@@ -233,8 +254,9 @@ public class SimulationEngine {
     }
 
     private void dispatchWorldUpdate() {
-        if (listener != null) {
-            listener.onWorldUpdated(getSnapshot());
+        WorldSnapshot snapshot = getSnapshot();
+        for (Listener l : new ArrayList<>(listeners)) {
+            l.onWorldUpdated(snapshot);
         }
     }
 
