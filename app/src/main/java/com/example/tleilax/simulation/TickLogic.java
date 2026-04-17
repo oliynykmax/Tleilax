@@ -72,32 +72,17 @@ public class TickLogic {
     }
 
 
+    /**
+     * Processes plant growth and spread for the entire grid.
+     * This iterates over all tiles and determines where new grass and trees should spawn.
+     */
     private void advancePlantLayers(@NonNull Grid grid) {
         List<Grid.Position> grassSeeds = new ArrayList<>();
         List<Grid.Position> treeSeeds = new ArrayList<>();
 
         for (int y = 0; y < grid.getHeight(); y++) {
             for (int x = 0; x < grid.getWidth(); x++) {
-                Tile tile = grid.getTile(x, y);
-                if (tile == null) {
-                    continue;
-                }
-                if (tile.hasGrass() && random.nextFloat() < GRASS_SPREAD_CHANCE) {
-                    grassSeeds.add(new Grid.Position(x, y));
-                }
-
-                PlantState plantState = tile.getPlantState();
-                if (plantState == null) {
-                    continue;
-                }
-                plantState.advanceTick();
-                if (plantState.isReadyToClear()) {
-                    grid.clearPlant(x, y);
-                    continue;
-                }
-                if (plantState.canSpreadTree() && random.nextFloat() < TREE_SPREAD_CHANCE) {
-                    treeSeeds.add(new Grid.Position(x, y));
-                }
+                processTileForPlants(grid, x, y, grassSeeds, treeSeeds);
             }
         }
 
@@ -106,6 +91,37 @@ public class TickLogic {
         }
         for (Grid.Position position : treeSeeds) {
             spreadTree(grid, position);
+        }
+    }
+
+    /**
+     * Checks a single tile for plant growth events, such as grass spreading or trees dropping seeds.
+     * Clears dead plants if their lifecycle is complete.
+     */
+    private void processTileForPlants(
+            @NonNull Grid grid, int x, int y,
+            @NonNull List<Grid.Position> grassSeeds,
+            @NonNull List<Grid.Position> treeSeeds
+    ) {
+        Tile tile = grid.getTile(x, y);
+        if (tile == null) {
+            return;
+        }
+        if (tile.hasGrass() && random.nextFloat() < GRASS_SPREAD_CHANCE) {
+            grassSeeds.add(new Grid.Position(x, y));
+        }
+
+        PlantState plantState = tile.getPlantState();
+        if (plantState == null) {
+            return;
+        }
+        plantState.advanceTick();
+        if (plantState.isReadyToClear()) {
+            grid.clearPlant(x, y);
+            return;
+        }
+        if (plantState.canSpreadTree() && random.nextFloat() < TREE_SPREAD_CHANCE) {
+            treeSeeds.add(new Grid.Position(x, y));
         }
     }
 
