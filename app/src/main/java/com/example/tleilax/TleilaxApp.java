@@ -14,7 +14,6 @@ public class TleilaxApp extends Application {
         super.onCreate();
         appContext = getApplicationContext();
 
-        // Start global statistics tracking
         com.example.tleilax.utils.StatTracker.getInstance()
                 .startTracking(com.example.tleilax.simulation.SimulationSession.getEngine());
     }

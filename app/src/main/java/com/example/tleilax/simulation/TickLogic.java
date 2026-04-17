@@ -56,9 +56,6 @@ public class TickLogic {
         this.random = random;
     }
 
-    // ---------------------------------------------------------------
-    // Public entry point
-    // ---------------------------------------------------------------
 
     public void advance(@NonNull Grid grid) {
         advancePlantLayers(grid);
@@ -67,7 +64,6 @@ public class TickLogic {
         Map<EntityType, Integer> populationByType = countPopulationByType(animals);
         Collections.shuffle(animals, random);
         for (Entity entity : animals) {
-            // Skip if the entity was removed or moved during this tick
             if (grid.getAnimal(entity.getX(), entity.getY()) != entity) {
                 continue;
             }
@@ -75,9 +71,6 @@ public class TickLogic {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Plant-layer updates (unchanged from original)
-    // ---------------------------------------------------------------
 
     private void advancePlantLayers(@NonNull Grid grid) {
         List<Grid.Position> grassSeeds = new ArrayList<>();
@@ -116,16 +109,12 @@ public class TickLogic {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Animal turn — one primary action per tick
-    // ---------------------------------------------------------------
 
     private void handleAnimalTurn(
             @NonNull Grid grid,
             @NonNull Entity entity,
             @NonNull Map<EntityType, Integer> populationByType
     ) {
-        // 1. Metabolism — base 2 + speed-dependent; even slow animals burn meaningfully
         int speed = entity instanceof Animal animal ? animal.getSpeed() : 0;
         int metabolismCost = entity.getType().isPredator()
                 ? PREDATOR_METABOLISM_COST
@@ -137,19 +126,15 @@ public class TickLogic {
             return;
         }
 
-        // 2. Reproduce
         if (entity.canReproduce()
                 && random.nextFloat() < getAdjustedReproductionChance(entity.getType(), populationByType)) {
             if (reproduce(grid, entity, populationByType)) return;
         }
 
-        // 3. Flee (prey only — overrides feeding when predator is nearby)
         if (entity.getType().isPrey() && fleeFromPredator(grid, entity)) return;
 
-        // 4. Feed
         if (consumeCurrentTileResource(grid, entity)) return;
 
-        // 5. Attack (predators only — adjacent prey)
         if (entity.getType().isPredator()) {
             Entity target = findAdjacentTarget(grid, entity);
             if (target != null) {
@@ -158,7 +143,6 @@ public class TickLogic {
             }
         }
 
-        // 6. Chase (predators only — move toward nearest visible prey)
         if (entity.getType().isPredator() && chasePrey(grid, entity)) {
             Entity target = findAdjacentTarget(grid, entity);
             if (target != null) {
@@ -167,13 +151,9 @@ public class TickLogic {
             return;
         }
 
-        // 7. Wander
         moveRandomly(grid, entity);
     }
 
-    // ---------------------------------------------------------------
-    // 2. Reproduction
-    // ---------------------------------------------------------------
 
     private boolean reproduce(
             @NonNull Grid grid,
@@ -194,15 +174,11 @@ public class TickLogic {
         return false;
     }
 
-    // ---------------------------------------------------------------
-    // 3. Feeding
-    // ---------------------------------------------------------------
 
     private boolean consumeCurrentTileResource(@NonNull Grid grid, @NonNull Entity entity) {
         Tile tile = grid.getTile(entity.getX(), entity.getY());
         if (tile == null) return false;
 
-        // Grass
         if (tile.hasGrass() && entity.canConsume(ResourceKind.GRASS)) {
             tile.clearGrass();
             entity.changeEnergy(GRASS_ENERGY_GAIN);
@@ -212,7 +188,6 @@ public class TickLogic {
         PlantState plantState = tile.getPlantState();
         if (plantState == null) return false;
 
-        // Berries
         if (plantState.supportsResource(ResourceKind.BERRIES)
                 && plantState.getBerryAmount() > 0
                 && entity.canConsume(ResourceKind.BERRIES)) {
@@ -221,7 +196,6 @@ public class TickLogic {
             return true;
         }
 
-        // Tree leaves — deer browses without killing the tree (small durability drain)
         if (plantState.supportsResource(ResourceKind.TREE_LEAVES)
                 && entity.canConsume(ResourceKind.TREE_LEAVES)) {
             entity.changeEnergy(TREE_LEAVES_ENERGY_GAIN);
@@ -237,9 +211,6 @@ public class TickLogic {
         return false;
     }
 
-    // ---------------------------------------------------------------
-    // 4. Attack
-    // ---------------------------------------------------------------
 
     private void attack(
             @NonNull Grid grid,
@@ -266,9 +237,6 @@ public class TickLogic {
         return null;
     }
 
-    // ---------------------------------------------------------------
-    // 5 & 6. Vision-range scanning, flee, and chase
-    // ---------------------------------------------------------------
 
     /**
      * Scans the grid within the entity's vision range and returns the nearest
@@ -336,7 +304,6 @@ public class TickLogic {
                     grid.getAdjacentEmptyPositions(entity.getX(), entity.getY(), entity);
             if (candidates.isEmpty()) break;
 
-            // Sort candidates: flee → farthest first; chase → nearest first
             candidates.sort((a, b) -> {
                 int distA = Math.max(Math.abs(a.x() - target.getX()), Math.abs(a.y() - target.getY()));
                 int distB = Math.max(Math.abs(b.x() - target.getX()), Math.abs(b.y() - target.getY()));
@@ -356,9 +323,6 @@ public class TickLogic {
         return moved;
     }
 
-    // ---------------------------------------------------------------
-    // 7. Random movement
-    // ---------------------------------------------------------------
 
     private void moveRandomly(@NonNull Grid grid, @NonNull Entity entity) {
         int movementSteps = Math.max(1, entity instanceof Animal animal ? animal.getSpeed() : 1);
@@ -371,9 +335,6 @@ public class TickLogic {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Plant spread helpers (unchanged from original)
-    // ---------------------------------------------------------------
 
     private void spreadGrass(@NonNull Grid grid, @NonNull Grid.Position position) {
         for (Grid.Position neighbor : shuffled(grid.getAdjacentPositions(position.x(), position.y()))) {
@@ -404,9 +365,6 @@ public class TickLogic {
         }
     }
 
-    // ---------------------------------------------------------------
-    // Utility
-    // ---------------------------------------------------------------
 
     @NonNull
     private List<Grid.Position> shuffled(@NonNull List<Grid.Position> positions) {
