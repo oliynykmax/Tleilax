@@ -167,6 +167,24 @@ public class Grid {
         return emptyPositions;
     }
 
+    /**
+     * Returns adjacent positions that are empty and traversable by the given entity.
+     * Unlike {@link #getAdjacentEmptyPositions(int, int)}, this also checks
+     * {@link #canAnimalOccupy}, filtering out tiles blocked by plants
+     * (e.g. tall trees that the entity cannot pass through).
+     */
+    @NonNull
+    public List<Position> getAdjacentEmptyPositions(int x, int y, @NonNull Entity entity) {
+        List<Position> emptyPositions = new ArrayList<>();
+        for (Position position : getAdjacentPositions(x, y)) {
+            Tile tile = getTile(position.x(), position.y());
+            if (tile != null && tile.getAnimal() == null && canAnimalOccupy(entity, position.x(), position.y())) {
+                emptyPositions.add(position);
+            }
+        }
+        return emptyPositions;
+    }
+
     public void setGrass(int x, int y, int grassAmount) {
         Tile tile = getRequiredTile(x, y);
         if (tile.getPlantState() != null && !tile.getPlantState().canSpreadGrassUnderneath()) {
