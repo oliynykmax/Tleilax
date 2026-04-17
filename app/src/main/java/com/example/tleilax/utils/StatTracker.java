@@ -31,23 +31,17 @@ public class StatTracker implements SimulationEngine.Listener {
     }
 
     public synchronized void addListener(@NonNull SimulationEngine.Listener listener) {
-        // No-op for now as we use the engine's listener system directly in fragments
     }
 
     @Override
     public synchronized void onWorldUpdated(@NonNull WorldSnapshot snapshot) {
-        // Only track every 5 ticks or so to keep history manageable and avoid excessive UI updates
-        // but we need enough precision for the graph.
-        // Actually, let's track every tick but limit total size.
         
         StatisticsSnapshot stat = StatisticsSnapshot.fromWorldSnapshot(snapshot);
         
-        // If it's a reset (tick 0), clear history
         if (snapshot.tickCount() == 0) {
             history.clear();
         }
 
-        // Deduplicate or update last if same tick (e.g. manual update)
         if (!history.isEmpty() && history.get(history.size() - 1).getTick() == stat.getTick()) {
             history.set(history.size() - 1, stat);
         } else {
