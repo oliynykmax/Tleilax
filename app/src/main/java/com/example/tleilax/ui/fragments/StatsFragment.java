@@ -283,7 +283,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         LineData data = new LineData(dataSets);
         lineChart.setData(data);
 
-        // Fit all data into the fixed-size chart
         lineChart.fitScreen();
         lineChart.invalidate();
     }
@@ -347,7 +346,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         Integer color = SPECIES_COLORS.get(species);
         if (color != null) return color;
 
-        // Try case-insensitive fallback for any variant naming
         for (Map.Entry<String, Integer> entry : SPECIES_COLORS.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(species)) {
                 return entry.getValue();
@@ -357,7 +355,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
     }
 
     /**
-        // First try EntityType.displayName for a canonical label
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
             if (i > 0) sb.append(' ');
