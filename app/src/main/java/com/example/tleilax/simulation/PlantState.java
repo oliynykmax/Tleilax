@@ -161,7 +161,9 @@ public class PlantState {
     }
 
     public boolean supportsResource(@NonNull ResourceKind resourceKind) {
-        return resourceKind == ResourceKind.BERRIES && plantType == PlantType.BERRY_BUSH && !dead;
+        if (resourceKind == ResourceKind.BERRIES && plantType == PlantType.BERRY_BUSH && !dead) return true;
+        if (resourceKind == ResourceKind.TREE_LEAVES && plantType == PlantType.TREE && !dead && durability > 0) return true;
+        return false;
     }
 
     public void damage(int amount) {
