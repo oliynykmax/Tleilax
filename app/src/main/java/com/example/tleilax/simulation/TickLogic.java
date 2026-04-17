@@ -5,10 +5,13 @@ import androidx.annotation.Nullable;
 
 import com.example.tleilax.model.Animal;
 import com.example.tleilax.model.Entity;
+import com.example.tleilax.model.EntityType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -28,11 +31,20 @@ import java.util.Random;
  */
 public class TickLogic {
 
-    private static final float GRASS_SPREAD_CHANCE = 0.11f;
-    private static final float TREE_SPREAD_CHANCE = 0.03f;
-    private static final int GRASS_ENERGY_GAIN = 6;
+    private static final float GRASS_SPREAD_CHANCE = 0.06f;
+    private static final float TREE_SPREAD_CHANCE = 0.01f;
+    private static final int GRASS_ENERGY_GAIN = 4;
     private static final int BERRY_ENERGY_GAIN = 5;
-    private static final int TREE_LEAVES_ENERGY_GAIN = 3;
+    private static final int TREE_LEAVES_ENERGY_GAIN = 2;
+    private static final int PREY_FLEE_RADIUS = 1;
+    private static final float TREE_BROWSE_DAMAGE_CHANCE = 0.1f;
+    private static final float PREDATOR_KILL_ENERGY_RATIO = 1.25f;
+    private static final int PREDATOR_METABOLISM_COST = 1;
+    private static final float MIN_REPRODUCTION_MULTIPLIER = 0.2f;
+    private static final float MAX_REPRODUCTION_MULTIPLIER = 2.4f;
+
+    @NonNull
+    private static final Map<EntityType, Integer> TARGET_POPULATION_BY_TYPE = createTargetPopulationByType();
 
     private final Random random;
 
@@ -52,13 +64,14 @@ public class TickLogic {
         advancePlantLayers(grid);
 
         List<Entity> animals = new ArrayList<>(grid.getAnimals());
+        Map<EntityType, Integer> populationByType = countPopulationByType(animals);
         Collections.shuffle(animals, random);
         for (Entity entity : animals) {
             // Skip if the entity was removed or moved during this tick
             if (grid.getAnimal(entity.getX(), entity.getY()) != entity) {
                 continue;
             }
-            handleAnimalTurn(grid, entity);
+            handleAnimalTurn(grid, entity, populationByType);
         }
     }
 
@@ -107,20 +120,27 @@ public class TickLogic {
     // Animal turn — one primary action per tick
     // ---------------------------------------------------------------
 
-    private void handleAnimalTurn(@NonNull Grid grid, @NonNull Entity entity) {
+    private void handleAnimalTurn(
+            @NonNull Grid grid,
+            @NonNull Entity entity,
+            @NonNull Map<EntityType, Integer> populationByType
+    ) {
         // 1. Metabolism — base 2 + speed-dependent; even slow animals burn meaningfully
         int speed = entity instanceof Animal animal ? animal.getSpeed() : 0;
-        int metabolismCost = Math.max(2, speed);
+        int metabolismCost = entity.getType().isPredator()
+                ? PREDATOR_METABOLISM_COST
+                : Math.max(2, speed);
         entity.changeEnergy(-metabolismCost);
         if (!entity.isAlive()) {
             grid.removeAnimal(entity);
+            decrementPopulation(populationByType, entity.getType());
             return;
         }
 
         // 2. Reproduce
         if (entity.canReproduce()
-                && random.nextFloat() < entity.getType().getReproductionChance()) {
-            if (reproduce(grid, entity)) return;
+                && random.nextFloat() < getAdjustedReproductionChance(entity.getType(), populationByType)) {
+            if (reproduce(grid, entity, populationByType)) return;
         }
 
         // 3. Flee (prey only — overrides feeding when predator is nearby)
@@ -133,13 +153,19 @@ public class TickLogic {
         if (entity.getType().isPredator()) {
             Entity target = findAdjacentTarget(grid, entity);
             if (target != null) {
-                attack(grid, entity, target);
+                attack(grid, entity, target, populationByType);
                 return;
             }
         }
 
         // 6. Chase (predators only — move toward nearest visible prey)
-        if (entity.getType().isPredator() && chasePrey(grid, entity)) return;
+        if (entity.getType().isPredator() && chasePrey(grid, entity)) {
+            Entity target = findAdjacentTarget(grid, entity);
+            if (target != null) {
+                attack(grid, entity, target, populationByType);
+            }
+            return;
+        }
 
         // 7. Wander
         moveRandomly(grid, entity);
@@ -149,7 +175,11 @@ public class TickLogic {
     // 2. Reproduction
     // ---------------------------------------------------------------
 
-    private boolean reproduce(@NonNull Grid grid, @NonNull Entity parent) {
+    private boolean reproduce(
+            @NonNull Grid grid,
+            @NonNull Entity parent,
+            @NonNull Map<EntityType, Integer> populationByType
+    ) {
         List<Grid.Position> emptyPositions =
                 shuffled(grid.getAdjacentEmptyPositions(parent.getX(), parent.getY(), parent));
         if (emptyPositions.isEmpty()) return false;
@@ -158,6 +188,7 @@ public class TickLogic {
         Entity offspring = parent.spawnOffspring(pos.x(), pos.y());
         if (grid.placeAnimal(offspring)) {
             parent.changeEnergy(-parent.getReproductionThreshold() / 2);
+            incrementPopulation(populationByType, offspring.getType());
             return true;
         }
         return false;
@@ -194,7 +225,9 @@ public class TickLogic {
         if (plantState.supportsResource(ResourceKind.TREE_LEAVES)
                 && entity.canConsume(ResourceKind.TREE_LEAVES)) {
             entity.changeEnergy(TREE_LEAVES_ENERGY_GAIN);
-            plantState.damage(1);
+            if (random.nextFloat() < TREE_BROWSE_DAMAGE_CHANCE) {
+                plantState.damage(1);
+            }
             if (plantState.isReadyToClear()) {
                 grid.clearPlant(entity.getX(), entity.getY());
             }
@@ -208,12 +241,17 @@ public class TickLogic {
     // 4. Attack
     // ---------------------------------------------------------------
 
-    private void attack(@NonNull Grid grid, @NonNull Entity attacker, @NonNull Entity target) {
+    private void attack(
+            @NonNull Grid grid,
+            @NonNull Entity attacker,
+            @NonNull Entity target,
+            @NonNull Map<EntityType, Integer> populationByType
+    ) {
         target.changeHealth(-attacker.getAttackPower());
         if (!target.isAlive()) {
-            // Predator gains energy from the kill
-            attacker.changeEnergy(target.getEnergy() / 2);
+            attacker.changeEnergy(Math.round(target.getEnergy() * PREDATOR_KILL_ENERGY_RATIO));
             grid.removeAnimal(target);
+            decrementPopulation(populationByType, target.getType());
         }
     }
 
@@ -238,8 +276,10 @@ public class TickLogic {
      */
     @Nullable
     private Entity scanForEntity(@NonNull Grid grid, @NonNull Entity entity,
-                                 boolean searchPredator) {
-        int range = entity instanceof Animal animal ? animal.getVisionRange() : 0;
+                                 boolean searchPredator, @Nullable Integer radiusOverride) {
+        int range = radiusOverride != null
+                ? radiusOverride
+                : entity instanceof Animal animal ? animal.getVisionRange() : 0;
         if (range <= 0) return null;
 
         Entity closest = null;
@@ -269,13 +309,13 @@ public class TickLogic {
     }
 
     private boolean fleeFromPredator(@NonNull Grid grid, @NonNull Entity entity) {
-        Entity predator = scanForEntity(grid, entity, true);
+        Entity predator = scanForEntity(grid, entity, true, PREY_FLEE_RADIUS);
         if (predator == null) return false;
         return moveDirected(grid, entity, predator, true);
     }
 
     private boolean chasePrey(@NonNull Grid grid, @NonNull Entity entity) {
-        Entity prey = scanForEntity(grid, entity, false);
+        Entity prey = scanForEntity(grid, entity, false, null);
         if (prey == null) return false;
         return moveDirected(grid, entity, prey, false);
     }
@@ -373,5 +413,64 @@ public class TickLogic {
         List<Grid.Position> copy = new ArrayList<>(positions);
         Collections.shuffle(copy, random);
         return copy;
+    }
+
+    @NonNull
+    private static Map<EntityType, Integer> createTargetPopulationByType() {
+        Map<EntityType, Integer> targetPopulationByType = new EnumMap<>(EntityType.class);
+        targetPopulationByType.put(EntityType.WOLF, 8);
+        targetPopulationByType.put(EntityType.RABBIT, 34);
+        targetPopulationByType.put(EntityType.MOUSE, 18);
+        targetPopulationByType.put(EntityType.DEER, 10);
+        return targetPopulationByType;
+    }
+
+    @NonNull
+    private Map<EntityType, Integer> countPopulationByType(@NonNull List<Entity> animals) {
+        Map<EntityType, Integer> populationByType = new EnumMap<>(EntityType.class);
+        for (Entity animal : animals) {
+            incrementPopulation(populationByType, animal.getType());
+        }
+        return populationByType;
+    }
+
+    private float getAdjustedReproductionChance(
+            @NonNull EntityType entityType,
+            @NonNull Map<EntityType, Integer> populationByType
+    ) {
+        int targetPopulation = TARGET_POPULATION_BY_TYPE.getOrDefault(entityType, 1);
+        int currentPopulation = populationByType.getOrDefault(entityType, 0);
+        if (targetPopulation <= 0) {
+            return entityType.getReproductionChance();
+        }
+
+        float populationRatio = currentPopulation / (float) targetPopulation;
+        float reproductionMultiplier = clamp(2.0f - populationRatio,
+                MIN_REPRODUCTION_MULTIPLIER,
+                MAX_REPRODUCTION_MULTIPLIER);
+        return Math.min(1.0f, entityType.getReproductionChance() * reproductionMultiplier);
+    }
+
+    private void incrementPopulation(@NonNull Map<EntityType, Integer> populationByType, @NonNull EntityType entityType) {
+        if (!entityType.isPredator() && !entityType.isPrey()) {
+            return;
+        }
+        populationByType.put(entityType, populationByType.getOrDefault(entityType, 0) + 1);
+    }
+
+    private void decrementPopulation(@NonNull Map<EntityType, Integer> populationByType, @NonNull EntityType entityType) {
+        if (!entityType.isPredator() && !entityType.isPrey()) {
+            return;
+        }
+        int currentPopulation = populationByType.getOrDefault(entityType, 0);
+        if (currentPopulation <= 1) {
+            populationByType.remove(entityType);
+            return;
+        }
+        populationByType.put(entityType, currentPopulation - 1);
+    }
+
+    private float clamp(float value, float minValue, float maxValue) {
+        return Math.max(minValue, Math.min(maxValue, value));
     }
 }
