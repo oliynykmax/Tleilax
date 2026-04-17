@@ -102,7 +102,6 @@ public final class MusicManager implements AppSettings.Listener {
             wantsPlay = false;
             abandonAudioFocus();
         } else if (wantsPlay || player != null) {
-            // Re-enable: auto-play if we were previously playing or have an existing player
             wantsPlay = true;
             if (requestAudioFocus()) {
                 beginPlayback(null);
@@ -112,12 +111,10 @@ public final class MusicManager implements AppSettings.Listener {
 
     @Override
     public void onShowGridChanged(boolean visible) {
-        // No-op for music
     }
 
     @Override
     public void onGrassCoverageChanged(int percent) {
-        // No-op for music
     }
 
     private void beginPlayback(@Nullable Context context) {
@@ -134,7 +131,6 @@ public final class MusicManager implements AppSettings.Listener {
                 prepared = false;
                 return false;
             });
-            // MediaPlayer.create with a resource ID returns an already-prepared player
             prepared = true;
         }
         if (prepared && !player.isPlaying()) {
@@ -178,7 +174,6 @@ public final class MusicManager implements AppSettings.Listener {
                 }
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                // Lower volume instead of pausing
                 if (player != null) {
                     player.setVolume(0.2f, 0.2f);
                 }

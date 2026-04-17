@@ -51,7 +51,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
     /** Stable color mapping — keyed by EntityType name() / PlantType name(). */
     private static final LinkedHashMap<String, Integer> SPECIES_COLORS = new LinkedHashMap<>();
     static {
-        // Use the same render colors from EntityType for visual consistency
         for (com.example.tleilax.model.EntityType type : com.example.tleilax.model.EntityType.values()) {
             SPECIES_COLORS.put(type.name(), type.getRenderColor());
         }
@@ -345,11 +344,6 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
     }
 
     /**
-     * Returns a stable color for a species keyed by its enum name.
-     * Uses the same render color from EntityType/PlantType so the chart
-     * line always matches the entity's in-world color.
-     */
-    private int getStableColor(@NonNull String species) {
         Integer color = SPECIES_COLORS.get(species);
         if (color != null) return color;
 
@@ -363,18 +357,7 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
     }
 
     /**
-     * Formats an enum-style species name into a human-readable label.
-     * E.g. "BERRY_BUSH" → "Berry Bush", "WOLF" → "Wolf".
-     */
-    private String formatSpeciesName(@NonNull String species) {
         // First try EntityType.displayName for a canonical label
-        for (com.example.tleilax.model.EntityType type : com.example.tleilax.model.EntityType.values()) {
-            if (type.name().equalsIgnoreCase(species)) {
-                return type.getDisplayName();
-            }
-        }
-        // Fallback: replace underscores with spaces and title-case
-        String[] parts = species.replace('_', ' ').split(" ");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
             if (i > 0) sb.append(' ');
