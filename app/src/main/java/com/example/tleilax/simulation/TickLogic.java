@@ -30,9 +30,9 @@ public class TickLogic {
 
     private static final float GRASS_SPREAD_CHANCE = 0.11f;
     private static final float TREE_SPREAD_CHANCE = 0.03f;
-    private static final int GRASS_ENERGY_GAIN = 12;
-    private static final int BERRY_ENERGY_GAIN = 10;
-    private static final int TREE_LEAVES_ENERGY_GAIN = 8;
+    private static final int GRASS_ENERGY_GAIN = 6;
+    private static final int BERRY_ENERGY_GAIN = 5;
+    private static final int TREE_LEAVES_ENERGY_GAIN = 3;
 
     private final Random random;
 
@@ -108,8 +108,10 @@ public class TickLogic {
     // ---------------------------------------------------------------
 
     private void handleAnimalTurn(@NonNull Grid grid, @NonNull Entity entity) {
-        // 1. Metabolism
-        entity.changeEnergy(-1);
+        // 1. Metabolism — base 2 + speed-dependent; even slow animals burn meaningfully
+        int speed = entity instanceof Animal animal ? animal.getSpeed() : 0;
+        int metabolismCost = Math.max(2, speed);
+        entity.changeEnergy(-metabolismCost);
         if (!entity.isAlive()) {
             grid.removeAnimal(entity);
             return;
