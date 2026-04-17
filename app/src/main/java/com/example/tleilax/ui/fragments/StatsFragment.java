@@ -342,7 +342,7 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         return value == null ? 0 : value;
     }
 
-    /**
+    private int getStableColor(@NonNull String species) {
         Integer color = SPECIES_COLORS.get(species);
         if (color != null) return color;
 
@@ -354,7 +354,8 @@ public class StatsFragment extends Fragment implements com.example.tleilax.simul
         return FALLBACK_COLOR;
     }
 
-    /**
+    private String formatSpeciesName(@NonNull String species) {
+        String[] parts = species.split("_");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parts.length; i++) {
             if (i > 0) sb.append(' ');

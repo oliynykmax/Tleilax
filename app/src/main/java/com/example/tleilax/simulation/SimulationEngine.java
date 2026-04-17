@@ -111,7 +111,8 @@ public class SimulationEngine {
         pause();
         grid = new Grid(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
         tickCount = 0;
-        seedWorld();
+        WorldGenerator generator = new WorldGenerator();
+        generator.seedWorld(grid, new Random(), AppSettings.getGrassCoveragePercent(TleilaxApp.getAppContext()));
         dispatchWorldUpdate();
     }
 
@@ -133,6 +134,9 @@ public class SimulationEngine {
         return placed;
     }
 
+    /**
+     * Captures a point-in-time snapshot of the entire simulation state.
+     */
     @NonNull
     public WorldSnapshot getSnapshot() {
         if (grid == null) {
@@ -145,104 +149,56 @@ public class SimulationEngine {
                 if (tile == null) {
                     continue;
                 }
-                WorldSnapshot.PlantSnapshot plantSnapshot = null;
-                if (tile.getPlantState() != null) {
-                    plantSnapshot = new WorldSnapshot.PlantSnapshot(
-                            tile.getPlantState().getPlantType(),
-                            tile.getPlantState().getBlockingHeight(),
-                            tile.getPlantState().isDead(),
-                            tile.getPlantState().getBerryAmount(),
-                            tile.getPlantState().getDurability(),
-                            tile.getPlantState().getBerryRegrowProgress(),
-                            tile.getPlantState().getLifecycleTicksRemaining(),
-                            tile.getPlantState().getTreeVariant(),
-                            tile.getPlantState().getTreeLifeStage()
-                    );
+                WorldSnapshot.CellSnapshot cellSnapshot = createCellSnapshot(x, y, tile);
+                if (cellSnapshot != null) {
+                    cells.add(cellSnapshot);
                 }
-                WorldSnapshot.AnimalSnapshot animalSnapshot = null;
-                if (tile.getAnimal() != null) {
-                    animalSnapshot = new WorldSnapshot.AnimalSnapshot(
-                            tile.getAnimal().getType(),
-                            tile.getAnimal().getEnergy(),
-                            tile.getAnimal().getHealth()
-                    );
-                }
-                if (tile.getGrassAmount() == 0 && plantSnapshot == null && animalSnapshot == null) {
-                    continue;
-                }
-                cells.add(new WorldSnapshot.CellSnapshot(
-                        x,
-                        y,
-                        tile.getTerrainType(),
-                        tile.getGrassAmount(),
-                        plantSnapshot,
-                        animalSnapshot
-                ));
             }
         }
         return new WorldSnapshot(grid.getWidth(), grid.getHeight(), tickCount, TerrainType.SAND, cells);
     }
 
-    private void seedWorld() {
-        Random random = new Random();
-        grid.seedGrassPatches(random, AppSettings.getGrassCoveragePercent(TleilaxApp.getAppContext()));
-        seedPlantsNearGrass(random);
-        addRandomAnimals(EntityType.WOLF, 3, random);
-        addRandomAnimals(EntityType.RABBIT, 12, random);
-        addRandomAnimals(EntityType.MOUSE, 10, random);
-        addRandomAnimals(EntityType.DEER, 6, random);
-    }
-
-    private void seedPlantsNearGrass(@NonNull Random random) {
-        int berryBushes = Math.max(6, grid.getWidth() / 3);
-        int trees = Math.max(8, grid.getWidth() / 2);
-        int attempts = 0;
-        while ((berryBushes > 0 || trees > 0) && attempts < 800) {
-            int x = random.nextInt(grid.getWidth());
-            int y = random.nextInt(grid.getHeight());
-            Tile tile = grid.getTile(x, y);
-            if (tile == null || !tile.hasGrass()) {
-                attempts++;
-                continue;
-            }
-            boolean grassEdge = false;
-            for (Grid.Position neighbor : grid.getAdjacentPositions(x, y)) {
-                Tile neighborTile = grid.getTile(neighbor.x(), neighbor.y());
-                if (neighborTile != null && !neighborTile.hasGrass()) {
-                    grassEdge = true;
-                    break;
-                }
-            }
-
-            if (trees > 0 && grassEdge && tile.getPlantState() == null) {
-                TreeVariant treeVariant = switch (random.nextInt(3)) {
-                    case 0 -> TreeVariant.LOW;
-                    case 1 -> TreeVariant.MEDIUM;
-                    default -> TreeVariant.TALL;
-                };
-                grid.placeTree(x, y, treeVariant);
-                trees--;
-            } else if (berryBushes > 0 && tile.getPlantState() == null) {
-                grid.placeBerryBush(x, y);
-                berryBushes--;
-            }
-            attempts++;
+    /**
+     * Extracts a compact state representation for a single cell, 
+     * returning null if the cell is completely empty.
+     */
+    @Nullable
+    private WorldSnapshot.CellSnapshot createCellSnapshot(int x, int y, @NonNull Tile tile) {
+        WorldSnapshot.PlantSnapshot plantSnapshot = null;
+        if (tile.getPlantState() != null) {
+            PlantState ps = tile.getPlantState();
+            plantSnapshot = new WorldSnapshot.PlantSnapshot(
+                    ps.getPlantType(),
+                    ps.getBlockingHeight(),
+                    ps.isDead(),
+                    ps.getBerryAmount(),
+                    ps.getDurability(),
+                    ps.getBerryRegrowProgress(),
+                    ps.getLifecycleTicksRemaining(),
+                    ps.getTreeVariant(),
+                    ps.getTreeLifeStage()
+            );
         }
-    }
-
-    private void addRandomAnimals(@NonNull EntityType type, int count, @NonNull Random random) {
-        int attempts = 0;
-        int placed = 0;
-        int maxAttempts = count * 30;
-        while (placed < count && attempts < maxAttempts) {
-            int x = random.nextInt(grid.getWidth());
-            int y = random.nextInt(grid.getHeight());
-            Entity entity = Entity.create(type, x, y);
-            if (grid.placeAnimal(entity)) {
-                placed++;
-            }
-            attempts++;
+        WorldSnapshot.AnimalSnapshot animalSnapshot = null;
+        if (tile.getAnimal() != null) {
+            Entity animal = tile.getAnimal();
+            animalSnapshot = new WorldSnapshot.AnimalSnapshot(
+                    animal.getType(),
+                    animal.getEnergy(),
+                    animal.getHealth()
+            );
         }
+        if (tile.getGrassAmount() == 0 && plantSnapshot == null && animalSnapshot == null) {
+            return null;
+        }
+        return new WorldSnapshot.CellSnapshot(
+                x,
+                y,
+                tile.getTerrainType(),
+                tile.getGrassAmount(),
+                plantSnapshot,
+                animalSnapshot
+        );
     }
 
     private long getTickDelayMillis() {
