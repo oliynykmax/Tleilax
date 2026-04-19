@@ -8,7 +8,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -61,6 +64,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         setupPlayPause();
         setupSpeedControl();
         setupSpeciesSelection();
+        applySpeciesButtonIcons();
         setupCanvasInteractions();
         setupReset();
 
@@ -149,6 +153,26 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
     private void setupCanvasInteractions() {
         binding.simulationCanvas.setOnTileTapListener((gridX, gridY) ->
                 SimulationSession.getEngine().placeEntity(selectedEntityType, gridX, gridY));
+    }
+
+    private void applySpeciesButtonIcons() {
+        setPixelIcon(binding.btnWolf, R.drawable.animal_wolf);
+        setPixelIcon(binding.btnRabbit, R.drawable.animal_rabbit);
+        setPixelIcon(binding.btnMouse, R.drawable.animal_mouse);
+        setPixelIcon(binding.btnDeer, R.drawable.animal_deer);
+        setPixelIcon(binding.btnGrass, R.drawable.ground_grass);
+        setPixelIcon(binding.btnBerryBush, R.drawable.plant_bush_alive);
+        setPixelIcon(binding.btnTree, R.drawable.plant_tree_low_alive);
+    }
+
+    private void setPixelIcon(@NonNull MaterialButton button, @DrawableRes int drawableResId) {
+        BitmapDrawable icon = new BitmapDrawable(getResources(),
+                BitmapFactory.decodeResource(getResources(), drawableResId));
+        icon.setAntiAlias(false);
+        icon.setFilterBitmap(false);
+        icon.setDither(false);
+        button.setIcon(icon);
+        button.setIconTint(null);
     }
 
     private void setupReset() {
