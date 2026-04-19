@@ -59,8 +59,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🐺"
-            android:textSize="20sp" />
+            android:contentDescription="Wolf"
+            android:text=""
+            app:icon="@drawable/animal_wolf"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_rabbit"
@@ -68,8 +73,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🐰"
-            android:textSize="20sp" />
+            android:contentDescription="Rabbit"
+            android:text=""
+            app:icon="@drawable/animal_rabbit"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_mouse"
@@ -77,8 +87,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🐭"
-            android:textSize="20sp" />
+            android:contentDescription="Mouse"
+            android:text=""
+            app:icon="@drawable/animal_mouse"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_deer"
@@ -86,8 +101,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🦌"
-            android:textSize="20sp" />
+            android:contentDescription="Deer"
+            android:text=""
+            app:icon="@drawable/animal_deer"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_grass"
@@ -95,8 +115,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🌿"
-            android:textSize="20sp" />
+            android:contentDescription="Grass"
+            android:text=""
+            app:icon="@drawable/ground_grass"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_berry_bush"
@@ -104,8 +129,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🫐"
-            android:textSize="20sp" />
+            android:contentDescription="Berry bush"
+            android:text=""
+            app:icon="@drawable/plant_bush_alive"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_tree"
@@ -113,8 +143,13 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="🌲"
-            android:textSize="20sp" />
+            android:contentDescription="Tree"
+            android:text=""
+            app:icon="@drawable/plant_tree_low_alive"
+            app:iconGravity="textTop"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@null" />
 
     </LinearLayout>
 
