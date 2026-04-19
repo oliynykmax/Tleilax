@@ -21,7 +21,7 @@ import com.example.tleilax.simulation.WorldSnapshot;
 
 public class SimulationCanvasView extends View {
 
-    private static final int STARTUP_VISIBLE_CELLS = 32;
+    private static final int STARTUP_VISIBLE_CELLS = 14;
     private static final int MIN_VISIBLE_CELLS = 64;
     private static final int MAX_VISIBLE_CELLS = 12;
 
@@ -116,9 +116,6 @@ public class SimulationCanvasView extends View {
                 float bottom = top + cellHeight;
                 drawRect.set(left, top, right, bottom);
                 drawBitmap(canvas, textureLibrary.getTerrainTexture(worldSnapshot.defaultTerrainType()), drawRect);
-                if (gridVisible) {
-                    canvas.drawRect(drawRect, gridPaint);
-                }
             }
         }
 
@@ -137,27 +134,56 @@ public class SimulationCanvasView extends View {
             if (cell.grassAmount() > 0) {
                 drawBitmap(canvas, textureLibrary.getGrassTexture(), drawRect);
             }
+        }
+
+        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
+            float left = offsetX + cell.x() * cellWidth;
+            float top = offsetY + cell.y() * cellHeight;
+            float right = left + cellWidth;
+            float bottom = top + cellHeight;
+            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
+                continue;
+            }
+
+            drawRect.set(left, top, right, bottom);
 
             if (cell.plant() != null) {
                 if (cell.plant().plantType() == PlantType.BERRY_BUSH) {
                     drawBitmap(canvas, textureLibrary.getBushTexture(cell.plant().dead()), inset(drawRect, 0.18f));
                 } else {
                     TreeVariant variant = cell.plant().treeVariant() != null ? cell.plant().treeVariant() : TreeVariant.MEDIUM;
-                    float insetRatio = switch (variant) {
-                        case LOW -> 0.20f;
-                        case MEDIUM -> 0.14f;
-                        case TALL -> 0.08f;
-                    };
-                    drawBitmap(canvas, textureLibrary.getTreeTexture(variant, cell.plant().dead()), inset(drawRect, insetRatio));
+                    drawBitmap(canvas, textureLibrary.getTreeTexture(variant, cell.plant().dead()),
+                            treeBounds(drawRect, variant));
                 }
             }
+        }
+
+        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
+            float left = offsetX + cell.x() * cellWidth;
+            float top = offsetY + cell.y() * cellHeight;
+            float right = left + cellWidth;
+            float bottom = top + cellHeight;
+            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
+                continue;
+            }
+
+            drawRect.set(left, top, right, bottom);
 
             if (cell.animal() != null) {
                 drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()), inset(drawRect, 0.18f));
             }
+        }
 
-            if (gridVisible) {
-                canvas.drawRect(drawRect, gridPaint);
+        if (gridVisible) {
+            for (int y = visibleStartY; y <= visibleEndY; y++) {
+                for (int x = visibleStartX; x <= visibleEndX; x++) {
+                    float left = offsetX + x * cellWidth;
+                    float top = offsetY + y * cellHeight;
+                    float right = left + cellWidth;
+                    float bottom = top + cellHeight;
+                    drawRect.set(left, top, right, bottom);
+                    canvas.drawRect(drawRect, gridPaint);
+                }
             }
         }
 
@@ -165,6 +191,25 @@ public class SimulationCanvasView extends View {
             selectionPaint.setColor(selectedEntityType.getRenderColor());
             canvas.drawRect(0, 0, getWidth(), getHeight(), selectionPaint);
         }
+    }
+
+    @NonNull
+    private RectF treeBounds(@NonNull RectF tileBounds, @NonNull TreeVariant variant) {
+        float widthFactor = switch (variant) {
+            case LOW -> 1.00f;
+            case MEDIUM -> 1.45f;
+            case TALL -> 1.70f;
+        };
+        float heightFactor = switch (variant) {
+            case LOW -> 1.25f;
+            case MEDIUM -> 2.00f;
+            case TALL -> 2.75f;
+        };
+        float width = tileBounds.width() * widthFactor;
+        float height = tileBounds.height() * heightFactor;
+        float centerX = tileBounds.centerX();
+        float bottom = tileBounds.bottom + tileBounds.height() * 0.08f;
+        return new RectF(centerX - width / 2f, bottom - height, centerX + width / 2f, bottom);
     }
 
     @Override

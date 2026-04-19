@@ -58,3 +58,13 @@ app/
 ## Status
 
 🚧 In development — OOP course project, deadline April 20, 2026.
+
+## Asset Credits
+
+- Trees and bushes used for `plant_bush_*` and `plant_tree_*` are derived from `Trees & Bushes` by ansimuz, licensed `CC0`:
+  https://opengameart.org/content/trees-bushes
+- Grass used for `ground_grass` is derived from `Overworld - Grass Biome` by Beast, licensed `CC0`:
+  https://opengameart.org/content/overworld-grass-biome
+- Animal sprites used for `animal_wolf`, `animal_rabbit`, `animal_mouse`, and `animal_deer` are derived from `Tiny Creatures` by Clint Bellanger, licensed `CC0`:
+  https://opengameart.org/content/tiny-creatures
+- Some in-game textures are edited from the source packs above, including recolors, transparency cleanup, dead-state variants, and crop/scale adjustments.
