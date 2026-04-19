@@ -15,7 +15,7 @@ The full project plan, architectural diagrams, and UI wireframes are available a
 ## What is it?
 
 Tleilax is an Android application where you configure a living world and watch it evolve.
-Set up a starting environment — species, population sizes, terrain — press play, and observe.
+Generate a world, press play, and observe.
 Predators hunt, prey flee, plants spread. No one programs the outcome; it emerges on its own.
 
 ## Team
@@ -29,16 +29,18 @@ Predators hunt, prey flee, plants spread. No one programs the outcome; it emerge
 - Java, Android Studio
 - Min SDK 28 / Target SDK 36
 - Room (data persistence)
-- AnyChart-Android (statistics visualization)
+- MPAndroidChart (statistics visualization)
 
 ## Features
 
-- Configurable ecosystem with multiple species
+- Layered 2D ecosystem with predators, prey, grass, berry bushes, and trees
 - Real-time grid-based simulation
+- Species picker with tap-to-place interaction during simulation
 - Live population statistics and charts
-- Mid-simulation user intervention (add/remove entities, trigger events)
+- Pan and zoom simulation canvas
 - Save and load simulation states
 - Per-species behavior rules with unique traits
+- Settings for presentation and world generation
 
 ## Project Structure
 
@@ -48,7 +50,7 @@ app/
 ├── simulation/     SimulationEngine, Grid, tick logic
 ├── storage/        Room database, save/load
 ├── ui/
-│   ├── fragments/  SimulationFragment, StatsFragment, ConfigFragment
+│   ├── fragments/  SimulationFragment, StatsFragment, SaveLoadFragment, SettingsFragment
 │   └── adapters/   RecyclerView adapters
 └── utils/          StatTracker, helpers
 ```

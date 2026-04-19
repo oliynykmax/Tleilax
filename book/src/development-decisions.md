@@ -97,6 +97,13 @@ This page records the design decisions agreed while implementation was already u
 - Settings should include a destructive cleanup action that clears all saves and restores defaults.
 - Destructive reset actions should use custom dialogs matching the app style rather than platform-default alerts.
 
+## Statistics Visualization
+
+- The project uses `MPAndroidChart` instead of `AnyChart`.
+- `AnyChart` was rejected because its Android integration is WebView-based rather than native.
+- `AnyChart` was also rejected because its paid/commercial model was a poor fit for this course project.
+- A native charting library is a better fit for app performance, dependency simplicity, and Android UI integration.
+
 ## Delivery
 
 - CI should build the unsigned debug APK and publish it as a GitHub Actions artifact.
