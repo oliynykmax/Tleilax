@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.example.tleilax.model.EntityType;
 import com.example.tleilax.simulation.PlantType;
+import com.example.tleilax.simulation.TreeLifeStage;
 import com.example.tleilax.simulation.TreeVariant;
 import com.example.tleilax.simulation.WorldSnapshot;
 
@@ -147,11 +148,27 @@ public class SimulationCanvasView extends View {
 
             drawRect.set(left, top, right, bottom);
 
+            if (cell.animal() != null && !shouldDrawAnimalAfterPlants(cell)) {
+                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()), inset(drawRect, 0.18f));
+            }
+        }
+
+        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
+            float left = offsetX + cell.x() * cellWidth;
+            float top = offsetY + cell.y() * cellHeight;
+            float right = left + cellWidth;
+            float bottom = top + cellHeight;
+            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
+                continue;
+            }
+
+            drawRect.set(left, top, right, bottom);
+
             if (cell.plant() != null) {
                 if (cell.plant().plantType() == PlantType.BERRY_BUSH) {
                     drawBitmap(canvas, textureLibrary.getBushTexture(cell.plant().dead()), inset(drawRect, 0.18f));
                 } else {
-                    TreeVariant variant = cell.plant().treeVariant() != null ? cell.plant().treeVariant() : TreeVariant.MEDIUM;
+                    TreeVariant variant = resolveTreeRenderVariant(cell);
                     drawBitmap(canvas, textureLibrary.getTreeTexture(variant, cell.plant().dead()),
                             treeBounds(drawRect, variant));
                 }
@@ -169,7 +186,7 @@ public class SimulationCanvasView extends View {
 
             drawRect.set(left, top, right, bottom);
 
-            if (cell.animal() != null) {
+            if (cell.animal() != null && shouldDrawAnimalAfterPlants(cell)) {
                 drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()), inset(drawRect, 0.18f));
             }
         }
@@ -191,6 +208,28 @@ public class SimulationCanvasView extends View {
             selectionPaint.setColor(selectedEntityType.getRenderColor());
             canvas.drawRect(0, 0, getWidth(), getHeight(), selectionPaint);
         }
+    }
+
+    private boolean shouldDrawAnimalAfterPlants(@NonNull WorldSnapshot.CellSnapshot cell) {
+        return cell.animal() != null
+                && cell.plant() != null
+                && cell.plant().plantType() == PlantType.TREE;
+    }
+
+    @NonNull
+    private TreeVariant resolveTreeRenderVariant(@NonNull WorldSnapshot.CellSnapshot cell) {
+        if (cell.plant() == null || cell.plant().plantType() != PlantType.TREE) {
+            return TreeVariant.MEDIUM;
+        }
+        TreeLifeStage stage = cell.plant().treeLifeStage();
+        if (stage == null) {
+            return cell.plant().treeVariant() != null ? cell.plant().treeVariant() : TreeVariant.MEDIUM;
+        }
+        return switch (stage) {
+            case SAPLING -> TreeVariant.LOW;
+            case MATURE -> TreeVariant.MEDIUM;
+            case OLD, DEAD -> TreeVariant.TALL;
+        };
     }
 
     @NonNull
