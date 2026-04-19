@@ -156,22 +156,27 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
     }
 
     private void applySpeciesButtonIcons() {
-        setPixelIcon(binding.btnWolf, R.drawable.animal_wolf);
-        setPixelIcon(binding.btnRabbit, R.drawable.animal_rabbit);
-        setPixelIcon(binding.btnMouse, R.drawable.animal_mouse);
-        setPixelIcon(binding.btnDeer, R.drawable.animal_deer);
-        setPixelIcon(binding.btnGrass, R.drawable.ground_grass);
-        setPixelIcon(binding.btnBerryBush, R.drawable.plant_bush_alive);
-        setPixelIcon(binding.btnTree, R.drawable.plant_tree_low_alive);
+        setPixelIcon(binding.btnWolf, R.drawable.animal_wolf, 32);
+        setPixelIcon(binding.btnRabbit, R.drawable.animal_rabbit, 30);
+        setPixelIcon(binding.btnMouse, R.drawable.animal_mouse, 30);
+        setPixelIcon(binding.btnDeer, R.drawable.animal_deer, 30);
+        setPixelIcon(binding.btnGrass, R.drawable.ground_grass, 28);
+        setPixelIcon(binding.btnBerryBush, R.drawable.plant_bush_alive, 28);
+        setPixelIcon(binding.btnTree, R.drawable.plant_tree_low_alive, 28);
     }
 
-    private void setPixelIcon(@NonNull MaterialButton button, @DrawableRes int drawableResId) {
+    private void setPixelIcon(@NonNull MaterialButton button, @DrawableRes int drawableResId, int iconSizeDp) {
         BitmapDrawable icon = new BitmapDrawable(getResources(),
                 BitmapFactory.decodeResource(getResources(), drawableResId));
         icon.setAntiAlias(false);
         icon.setFilterBitmap(false);
         icon.setDither(false);
         button.setIcon(icon);
+        button.setIconSize((int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                iconSizeDp,
+                getResources().getDisplayMetrics()
+        ));
         button.setIconTint(null);
     }
 

@@ -244,13 +244,19 @@ public class TickLogic {
 
     @Nullable
     private Entity findAdjacentTarget(@NonNull Grid grid, @NonNull Entity entity) {
+        Entity bestCandidate = null;
+        int bestPriority = Integer.MIN_VALUE;
         for (Grid.Position position : shuffled(grid.getAdjacentPositions(entity.getX(), entity.getY()))) {
             Entity candidate = grid.getAnimal(position.x(), position.y());
             if (candidate != null && candidate.getType().isPrey()) {
-                return candidate;
+                int candidatePriority = getPreyPriority(candidate.getType());
+                if (bestCandidate == null || candidatePriority > bestPriority) {
+                    bestCandidate = candidate;
+                    bestPriority = candidatePriority;
+                }
             }
         }
-        return null;
+        return bestCandidate;
     }
 
 
@@ -283,13 +289,26 @@ public class TickLogic {
                 if (!match) continue;
 
                 int dist = Math.max(Math.abs(dx), Math.abs(dy));
-                if (dist < minDist) {
+                if (dist < minDist
+                        || (!searchPredator
+                        && dist == minDist
+                        && closest != null
+                        && getPreyPriority(candidate.getType()) > getPreyPriority(closest.getType()))) {
                     minDist = dist;
                     closest = candidate;
                 }
             }
         }
         return closest;
+    }
+
+    private int getPreyPriority(@NonNull EntityType entityType) {
+        return switch (entityType) {
+            case DEER -> 3;
+            case RABBIT -> 2;
+            case MOUSE -> 1;
+            default -> 0;
+        };
     }
 
     private boolean fleeFromPredator(@NonNull Grid grid, @NonNull Entity entity) {
