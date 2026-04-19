@@ -24,7 +24,7 @@ public class SimulationCanvasView extends View {
 
     private static final int STARTUP_VISIBLE_CELLS = 14;
     private static final int MIN_VISIBLE_CELLS = 64;
-    private static final int MAX_VISIBLE_CELLS = 12;
+    private static final int MAX_VISIBLE_CELLS = 6;
 
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint selectionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -149,7 +149,8 @@ public class SimulationCanvasView extends View {
             drawRect.set(left, top, right, bottom);
 
             if (cell.animal() != null && !shouldDrawAnimalAfterPlants(cell)) {
-                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()), inset(drawRect, 0.18f));
+                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()),
+                        animalBounds(drawRect, cell.animal().type()));
             }
         }
 
@@ -187,7 +188,8 @@ public class SimulationCanvasView extends View {
             drawRect.set(left, top, right, bottom);
 
             if (cell.animal() != null && shouldDrawAnimalAfterPlants(cell)) {
-                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()), inset(drawRect, 0.18f));
+                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()),
+                        animalBounds(drawRect, cell.animal().type()));
             }
         }
 
@@ -230,6 +232,12 @@ public class SimulationCanvasView extends View {
             case MATURE -> TreeVariant.MEDIUM;
             case OLD, DEAD -> TreeVariant.TALL;
         };
+    }
+
+    @NonNull
+    private RectF animalBounds(@NonNull RectF tileBounds, @NonNull EntityType entityType) {
+        float insetRatio = entityType == EntityType.WOLF ? 0.10f : 0.18f;
+        return inset(tileBounds, insetRatio);
     }
 
     @NonNull

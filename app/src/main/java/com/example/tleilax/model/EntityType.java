@@ -8,10 +8,10 @@ import com.example.tleilax.simulation.ResourceKind;
 import java.util.Set;
 
 public enum EntityType {
-    WOLF("Wolf", Family.PREDATOR, 90, 60, 16, 3, 6, 24, 16, 2, false, Set.of(), 0.25f, 0xFFCC241D),
-    RABBIT("Rabbit", Family.PREY, 55, 34, 4, 2, 5, 14, 10, 1, false, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES), 0.40f, 0xFFD79921),
-    MOUSE("Mouse", Family.PREY, 45, 28, 3, 3, 3, 10, 8, 1, true, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES), 0.50f, 0xFFBDAE93),
-    DEER("Deer", Family.PREY, 70, 44, 5, 1, 4, 20, 14, 3, true, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES, ResourceKind.TREE_LEAVES), 0.20f, 0xFF689D6A),
+    WOLF("Wolf", Family.PREDATOR, 90, 60, 16, 2, 6, 24, 16, 2, false, Set.of(), 0.25f, 0xFFCC241D),
+    RABBIT("Rabbit", Family.PREY, 55, 34, 4, 3, 5, 14, 10, 1, false, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES), 0.40f, 0xFFD79921),
+    MOUSE("Mouse", Family.PREY, 45, 28, 3, 1, 3, 10, 8, 1, true, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES), 0.50f, 0xFFBDAE93),
+    DEER("Deer", Family.PREY, 70, 44, 5, 4, 4, 20, 14, 3, true, Set.of(ResourceKind.GRASS, ResourceKind.BERRIES, ResourceKind.TREE_LEAVES), 0.20f, 0xFF689D6A),
     GRASS("Grass", Family.PLANT, 0, 0, 0, 0, 0, 0, 0, 0, false, Set.of(), 0f, 0xFF98971A),
     BERRY_BUSH("Berry Bush", Family.PLANT, 0, 0, 0, 0, 0, 0, 0, 1, false, Set.of(), 0f, 0xFFD65D0E),
     TREE("Tree", Family.PLANT, 0, 0, 0, 0, 0, 0, 0, 3, false, Set.of(), 0f, 0xFF076678);
