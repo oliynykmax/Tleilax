@@ -33,6 +33,9 @@ public class TickLogic {
 
     private static final float GRASS_SPREAD_CHANCE = 0.06f;
     private static final float TREE_SPREAD_CHANCE = 0.01f;
+    private static final float BERRY_BUSH_SPREAD_CHANCE = 0.008f;
+    private static final int MIN_BERRY_BUSH_CAP = 220;
+    private static final int BERRY_BUSH_CAP_AREA_DIVISOR = 280;
     private static final int GRASS_ENERGY_GAIN = 4;
     private static final int BERRY_ENERGY_GAIN = 5;
     private static final int TREE_LEAVES_ENERGY_GAIN = 2;
@@ -83,10 +86,11 @@ public class TickLogic {
     private void advancePlantLayers(@NonNull Grid grid) {
         List<Grid.Position> grassSeeds = new ArrayList<>();
         List<Grid.Position> treeSeeds = new ArrayList<>();
+        List<Grid.Position> berryBushSeeds = new ArrayList<>();
 
         for (int y = 0; y < grid.getHeight(); y++) {
             for (int x = 0; x < grid.getWidth(); x++) {
-                processTileForPlants(grid, x, y, grassSeeds, treeSeeds);
+                processTileForPlants(grid, x, y, grassSeeds, treeSeeds, berryBushSeeds);
             }
         }
 
@@ -95,6 +99,9 @@ public class TickLogic {
         }
         for (Grid.Position position : treeSeeds) {
             spreadTree(grid, position);
+        }
+        for (Grid.Position position : berryBushSeeds) {
+            spreadBerryBush(grid, position);
         }
     }
 
@@ -105,7 +112,8 @@ public class TickLogic {
     private void processTileForPlants(
             @NonNull Grid grid, int x, int y,
             @NonNull List<Grid.Position> grassSeeds,
-            @NonNull List<Grid.Position> treeSeeds
+            @NonNull List<Grid.Position> treeSeeds,
+            @NonNull List<Grid.Position> berryBushSeeds
     ) {
         Tile tile = grid.getTile(x, y);
         if (tile == null) {
@@ -126,6 +134,9 @@ public class TickLogic {
         }
         if (plantState.canSpreadTree() && random.nextFloat() < TREE_SPREAD_CHANCE) {
             treeSeeds.add(new Grid.Position(x, y));
+        }
+        if (plantState.canSpreadBerryBush() && random.nextFloat() < BERRY_BUSH_SPREAD_CHANCE) {
+            berryBushSeeds.add(new Grid.Position(x, y));
         }
     }
 
@@ -492,6 +503,48 @@ public class TickLogic {
             grid.placeTree(neighbor.x(), neighbor.y(), sourceTile.getPlantState().getTreeVariant());
             return;
         }
+    }
+
+    private void spreadBerryBush(@NonNull Grid grid, @NonNull Grid.Position position) {
+        if (countLivingBerryBushes(grid) >= getBerryBushCap(grid)) {
+            return;
+        }
+        Tile sourceTile = grid.getTile(position.x(), position.y());
+        if (sourceTile == null
+                || sourceTile.getPlantState() == null
+                || !sourceTile.getPlantState().canSpreadBerryBush()) {
+            return;
+        }
+        for (Grid.Position neighbor : shuffled(grid.getAdjacentPositions(position.x(), position.y()))) {
+            Tile tile = grid.getTile(neighbor.x(), neighbor.y());
+            if (tile == null || tile.getPlantState() != null || !tile.hasGrass()) {
+                continue;
+            }
+            grid.placeBerryBush(neighbor.x(), neighbor.y());
+            return;
+        }
+    }
+
+    private int getBerryBushCap(@NonNull Grid grid) {
+        int areaBasedCap = (grid.getWidth() * grid.getHeight()) / BERRY_BUSH_CAP_AREA_DIVISOR;
+        return Math.max(MIN_BERRY_BUSH_CAP, areaBasedCap);
+    }
+
+    private int countLivingBerryBushes(@NonNull Grid grid) {
+        int count = 0;
+        for (int y = 0; y < grid.getHeight(); y++) {
+            for (int x = 0; x < grid.getWidth(); x++) {
+                Tile tile = grid.getTile(x, y);
+                if (tile == null || tile.getPlantState() == null) {
+                    continue;
+                }
+                PlantState plantState = tile.getPlantState();
+                if (plantState.getPlantType() == PlantType.BERRY_BUSH && !plantState.isDead()) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
 

@@ -3,11 +3,14 @@ package com.example.tleilax.simulation;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Random;
+
 public class PlantState {
 
     private static final int DEFAULT_BERRY_BUSH_DURABILITY = 4;
     private static final int DEFAULT_BERRY_CAPACITY = 6;
     private static final int DEFAULT_BERRY_REGROW_TICKS = 6;
+    private static final int DEFAULT_BERRY_LIFETIME_TICKS = 180;
     private static final int SAPLING_TICKS = 18;
     private static final int MATURE_TICKS = 40;
     private static final int OLD_TICKS = 26;
@@ -43,6 +46,15 @@ public class PlantState {
         plantState.berryCapacity = DEFAULT_BERRY_CAPACITY;
         plantState.berryAmount = DEFAULT_BERRY_CAPACITY;
         plantState.berryRegrowTicks = DEFAULT_BERRY_REGROW_TICKS;
+        plantState.lifecycleTicksRemaining = DEFAULT_BERRY_LIFETIME_TICKS;
+        return plantState;
+    }
+
+    @NonNull
+    public static PlantState createBerryBushWithRandomizedLifecycle(@NonNull Random random) {
+        PlantState plantState = createBerryBush();
+        int minTicks = Math.max(24, Math.round(DEFAULT_BERRY_LIFETIME_TICKS * 0.45f));
+        plantState.lifecycleTicksRemaining = randomRange(random, minTicks, DEFAULT_BERRY_LIFETIME_TICKS);
         return plantState;
     }
 
@@ -54,6 +66,25 @@ public class PlantState {
         plantState.maxDurability = 10;
         plantState.blocksGroundGrowth = true;
         plantState.updateTreeStage(TreeLifeStage.SAPLING);
+        return plantState;
+    }
+
+    @NonNull
+    public static PlantState createTreeWithRandomizedLifecycle(
+            @NonNull TreeVariant treeVariant,
+            @NonNull Random random
+    ) {
+        PlantState plantState = createTree(treeVariant);
+        TreeLifeStage initialStage = chooseInitialTreeStage(random);
+        plantState.updateTreeStage(initialStage);
+        int stageDuration = switch (initialStage) {
+            case SAPLING -> SAPLING_TICKS;
+            case MATURE -> MATURE_TICKS;
+            case OLD -> OLD_TICKS;
+            case DEAD -> DEAD_TICKS;
+        };
+        int minTicks = Math.max(1, Math.round(stageDuration * 0.35f));
+        plantState.lifecycleTicksRemaining = randomRange(random, minTicks, stageDuration);
         return plantState;
     }
 
@@ -73,6 +104,10 @@ public class PlantState {
         if (dead) {
             plantState.lifecycleTicksRemaining = Math.max(0, lifecycleTicksRemaining);
             plantState.berryAmount = 0;
+        } else {
+            plantState.lifecycleTicksRemaining = lifecycleTicksRemaining > 0
+                    ? lifecycleTicksRemaining
+                    : DEFAULT_BERRY_LIFETIME_TICKS;
         }
         return plantState;
     }
@@ -160,6 +195,10 @@ public class PlantState {
         return plantType == PlantType.BERRY_BUSH && !dead && berryAmount < berryCapacity;
     }
 
+    public boolean canSpreadBerryBush() {
+        return plantType == PlantType.BERRY_BUSH && !dead;
+    }
+
     public boolean supportsResource(@NonNull ResourceKind resourceKind) {
         if (resourceKind == ResourceKind.BERRIES && plantType == PlantType.BERRY_BUSH && !dead) return true;
         if (resourceKind == ResourceKind.TREE_LEAVES && plantType == PlantType.TREE && !dead && durability > 0) return true;
@@ -199,6 +238,14 @@ public class PlantState {
     private void advanceBerryBushTick() {
         if (dead) {
             lifecycleTicksRemaining = Math.max(0, lifecycleTicksRemaining - 1);
+            return;
+        }
+        lifecycleTicksRemaining = Math.max(0, lifecycleTicksRemaining - 1);
+        if (lifecycleTicksRemaining == 0) {
+            dead = true;
+            berryAmount = 0;
+            berryRegrowProgress = 0;
+            lifecycleTicksRemaining = DEAD_TICKS;
             return;
         }
         if (berryAmount < berryCapacity) {
@@ -250,5 +297,24 @@ public class PlantState {
                 lifecycleTicksRemaining = DEAD_TICKS;
             }
         }
+    }
+
+    @NonNull
+    private static TreeLifeStage chooseInitialTreeStage(@NonNull Random random) {
+        float roll = random.nextFloat();
+        if (roll < 0.45f) {
+            return TreeLifeStage.SAPLING;
+        }
+        if (roll < 0.82f) {
+            return TreeLifeStage.MATURE;
+        }
+        return TreeLifeStage.OLD;
+    }
+
+    private static int randomRange(@NonNull Random random, int minInclusive, int maxInclusive) {
+        if (maxInclusive <= minInclusive) {
+            return minInclusive;
+        }
+        return minInclusive + random.nextInt(maxInclusive - minInclusive + 1);
     }
 }

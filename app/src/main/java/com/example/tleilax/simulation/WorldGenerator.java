@@ -177,10 +177,11 @@ public class WorldGenerator {
                     case 1 -> TreeVariant.MEDIUM;
                     default -> TreeVariant.TALL;
                 };
-                grid.placeTree(x, y, treeVariant);
+                tile.clearGrass();
+                tile.setPlantState(PlantState.createTreeWithRandomizedLifecycle(treeVariant, random));
                 trees--;
             } else if (berryBushes > 0 && tile.getPlantState() == null) {
-                grid.placeBerryBush(x, y);
+                tile.setPlantState(PlantState.createBerryBushWithRandomizedLifecycle(random));
                 berryBushes--;
             }
             attempts++;
