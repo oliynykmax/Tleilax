@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.example.tleilax.R;
 import com.example.tleilax.databinding.FragmentSimulationBinding;
 import com.example.tleilax.model.EntityType;
+import com.example.tleilax.simulation.ActiveEventZone;
 import com.example.tleilax.simulation.SimulationEngine;
 import com.example.tleilax.simulation.SimulationSession;
 import com.example.tleilax.utils.AppSettings;
@@ -43,6 +44,8 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
     private long loadingStartedAtMs;
     private int speedMultiplier = 1;
     @NonNull
+    private InteractionMode interactionMode = InteractionMode.PLACE_ENTITY;
+    @NonNull
     private EntityType selectedEntityType = EntityType.WOLF;
 
     @Nullable
@@ -64,11 +67,13 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         setupPlayPause();
         setupSpeedControl();
         setupSpeciesSelection();
+        setupEventControls();
         applySpeciesButtonIcons();
         setupCanvasInteractions();
         setupReset();
 
-        binding.simulationCanvas.setSelectedEntityType(selectedEntityType);
+        renderInteractionMode();
+        binding.simulationCanvas.setActiveEventZones(resolveActiveEventZones());
         binding.simulationCanvas.setGridVisible(AppSettings.isGridVisible(requireContext()));
         AppSettings.addListener(this);
 
@@ -144,15 +149,36 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
                     other.setStrokeColorResource(R.color.border_subtle);
                 }
                 button.setStrokeColorResource(R.color.accent_gold);
+                interactionMode = InteractionMode.PLACE_ENTITY;
                 selectedEntityType = entityType;
-                binding.simulationCanvas.setSelectedEntityType(entityType);
+                renderInteractionMode();
             });
         }
     }
 
+    private void setupEventControls() {
+        binding.btnEventDisaster.setOnClickListener(v -> toggleInteractionMode(InteractionMode.CAST_DISASTER));
+        binding.btnEventFrenzy.setOnClickListener(v -> toggleInteractionMode(InteractionMode.CAST_PREDATOR_FRENZY));
+    }
+
     private void setupCanvasInteractions() {
-        binding.simulationCanvas.setOnTileTapListener((gridX, gridY) ->
-                SimulationSession.getEngine().placeEntity(selectedEntityType, gridX, gridY));
+        binding.simulationCanvas.setOnTileTapListener((gridX, gridY) -> {
+            if (interactionMode == InteractionMode.CAST_DISASTER) {
+                if (SimulationSession.getEngine().triggerDisaster(gridX, gridY)) {
+                    interactionMode = InteractionMode.PLACE_ENTITY;
+                    renderInteractionMode();
+                }
+                return;
+            }
+            if (interactionMode == InteractionMode.CAST_PREDATOR_FRENZY) {
+                if (SimulationSession.getEngine().triggerPredatorFrenzy(gridX, gridY)) {
+                    interactionMode = InteractionMode.PLACE_ENTITY;
+                    renderInteractionMode();
+                }
+                return;
+            }
+            SimulationSession.getEngine().placeEntity(selectedEntityType, gridX, gridY);
+        });
     }
 
     private void applySpeciesButtonIcons() {
@@ -184,6 +210,26 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         binding.btnReset.setOnClickListener(v -> showResetDialog());
     }
 
+    private void toggleInteractionMode(@NonNull InteractionMode requestedMode) {
+        interactionMode = interactionMode == requestedMode ? InteractionMode.PLACE_ENTITY : requestedMode;
+        renderInteractionMode();
+    }
+
+    private void renderInteractionMode() {
+        if (binding == null) {
+            return;
+        }
+        binding.simulationCanvas.setSelectedEntityType(
+                interactionMode == InteractionMode.PLACE_ENTITY ? selectedEntityType : null
+        );
+        binding.btnEventDisaster.setStrokeColorResource(
+                interactionMode == InteractionMode.CAST_DISASTER ? R.color.accent_red : R.color.border_subtle
+        );
+        binding.btnEventFrenzy.setStrokeColorResource(
+                interactionMode == InteractionMode.CAST_PREDATOR_FRENZY ? R.color.accent_red : R.color.border_subtle
+        );
+    }
+
     @Override
     public void onWorldUpdated(@NonNull com.example.tleilax.simulation.WorldSnapshot snapshot) {
         if (binding == null) {
@@ -193,6 +239,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         SimulationSession.setWorldInitialized(true);
         binding.textTickCount.setText(getString(R.string.cycle_count, snapshot.tickCount()));
         binding.simulationCanvas.setWorldSnapshot(snapshot);
+        binding.simulationCanvas.setActiveEventZones(resolveActiveEventZones());
         loadingCompleted = true;
         maybeFinishLoading();
     }
@@ -287,6 +334,8 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
                     if (binding == null) {
                         return;
                     }
+                    interactionMode = InteractionMode.PLACE_ENTITY;
+                    renderInteractionMode();
                     SimulationSession.getEngine().reset(SimulationEngine.FIXED_WORLD_SIZE, SimulationEngine.FIXED_WORLD_SIZE);
                     SimulationSession.setWorldInitialized(true);
                 }, 140L));
@@ -342,5 +391,16 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             return "";
         }
         return statuses[LOADING_STATUS_RANDOM.nextInt(statuses.length)];
+    }
+
+    @NonNull
+    private List<ActiveEventZone> resolveActiveEventZones() {
+        return SimulationSession.getEngine().getActiveEventZones();
+    }
+
+    private enum InteractionMode {
+        PLACE_ENTITY,
+        CAST_DISASTER,
+        CAST_PREDATOR_FRENZY
     }
 }

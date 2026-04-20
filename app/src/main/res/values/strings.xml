@@ -53,6 +53,8 @@
     <string name="save_dialog_name_required">Enter a save name.</string>
     <string name="loading_label_world_gen">WORLD_GEN</string>
     <string name="loading_title">Growing the world</string>
+    <string name="simulation_event_disaster">Disaster</string>
+    <string name="simulation_event_frenzy">Frenzy</string>
     <string-array name="loading_status_lines">
         <item>Dunewrangling…</item>
         <item>Sandstitching…</item>

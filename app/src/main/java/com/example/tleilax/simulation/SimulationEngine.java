@@ -18,6 +18,9 @@ import java.util.Random;
 public class SimulationEngine {
 
     public static final int FIXED_WORLD_SIZE = 256;
+    public static final int DISASTER_RADIUS_TILES = 5;
+    public static final int PREDATOR_FRENZY_RADIUS_TILES = 10;
+    public static final int PREDATOR_FRENZY_DURATION_TICKS = 20;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final TickLogic tickLogic = new TickLogic();
@@ -35,6 +38,8 @@ public class SimulationEngine {
     private boolean running;
     private int speedMultiplier = 1;
     private long tickCount;
+    @NonNull
+    private final List<ActiveEventZone> activeEventZones = new ArrayList<>();
     @NonNull
     private final List<Listener> listeners = new ArrayList<>();
 
@@ -102,7 +107,8 @@ public class SimulationEngine {
         if (grid == null) {
             return;
         }
-        tickLogic.advance(grid);
+        tickLogic.advance(grid, activeEventZones);
+        advanceActiveEventZones();
         tickCount++;
         dispatchWorldUpdate();
     }
@@ -111,6 +117,7 @@ public class SimulationEngine {
         pause();
         grid = new Grid(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
         tickCount = 0;
+        activeEventZones.clear();
         WorldGenerator generator = new WorldGenerator();
         generator.seedWorld(
                 grid,
@@ -130,6 +137,7 @@ public class SimulationEngine {
         pause();
         grid = Grid.fromSnapshot(snapshot);
         tickCount = snapshot.tickCount();
+        activeEventZones.clear();
         dispatchWorldUpdate();
     }
 
@@ -142,6 +150,50 @@ public class SimulationEngine {
             dispatchWorldUpdate();
         }
         return placed;
+    }
+
+    public boolean triggerDisaster(int centerX, int centerY) {
+        if (grid == null) {
+            return false;
+        }
+        for (int y = centerY - DISASTER_RADIUS_TILES; y <= centerY + DISASTER_RADIUS_TILES; y++) {
+            for (int x = centerX - DISASTER_RADIUS_TILES; x <= centerX + DISASTER_RADIUS_TILES; x++) {
+                if (!isWithinRadius(x, y, centerX + 0.5f, centerY + 0.5f, DISASTER_RADIUS_TILES)) {
+                    continue;
+                }
+                Tile tile = grid.getTile(x, y);
+                if (tile == null) {
+                    continue;
+                }
+                if (tile.getAnimal() != null) {
+                    grid.removeAnimal(tile.getAnimal());
+                }
+                tile.clearGrass();
+                tile.setPlantState(null);
+            }
+        }
+        dispatchWorldUpdate();
+        return true;
+    }
+
+    public boolean triggerPredatorFrenzy(int centerX, int centerY) {
+        if (grid == null) {
+            return false;
+        }
+        activeEventZones.add(new ActiveEventZone(
+                SimulationEventType.PREDATOR_FRENZY,
+                centerX + 0.5f,
+                centerY + 0.5f,
+                PREDATOR_FRENZY_RADIUS_TILES,
+                PREDATOR_FRENZY_DURATION_TICKS
+        ));
+        dispatchWorldUpdate();
+        return true;
+    }
+
+    @NonNull
+    public List<ActiveEventZone> getActiveEventZones() {
+        return new ArrayList<>(activeEventZones);
     }
 
     /**
@@ -219,6 +271,30 @@ public class SimulationEngine {
             case 4 -> 160L;
             default -> 640L;
         };
+    }
+
+    private void advanceActiveEventZones() {
+        for (int index = activeEventZones.size() - 1; index >= 0; index--) {
+            ActiveEventZone zone = activeEventZones.get(index);
+            int nextTicksRemaining = zone.ticksRemaining() - 1;
+            if (nextTicksRemaining <= 0) {
+                activeEventZones.remove(index);
+                continue;
+            }
+            activeEventZones.set(index, new ActiveEventZone(
+                    zone.eventType(),
+                    zone.centerX(),
+                    zone.centerY(),
+                    zone.radiusTiles(),
+                    nextTicksRemaining
+            ));
+        }
+    }
+
+    private boolean isWithinRadius(int tileX, int tileY, float centerX, float centerY, float radiusTiles) {
+        float deltaX = (tileX + 0.5f) - centerX;
+        float deltaY = (tileY + 0.5f) - centerY;
+        return (deltaX * deltaX) + (deltaY * deltaY) <= radiusTiles * radiusTiles;
     }
 
     private void dispatchWorldUpdate() {

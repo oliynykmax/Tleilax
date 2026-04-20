@@ -15,10 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.tleilax.model.EntityType;
+import com.example.tleilax.simulation.ActiveEventZone;
 import com.example.tleilax.simulation.PlantType;
+import com.example.tleilax.simulation.SimulationEventType;
 import com.example.tleilax.simulation.TreeLifeStage;
 import com.example.tleilax.simulation.TreeVariant;
 import com.example.tleilax.simulation.WorldSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimulationCanvasView extends View {
 
@@ -28,6 +33,8 @@ public class SimulationCanvasView extends View {
 
     private final Paint gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint selectionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint eventFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint eventStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF drawRect = new RectF();
     private final TextureLibrary textureLibrary;
     private final ScaleGestureDetector scaleGestureDetector;
@@ -39,6 +46,8 @@ public class SimulationCanvasView extends View {
     private EntityType selectedEntityType;
     @Nullable
     private OnTileTapListener onTileTapListener;
+    @NonNull
+    private List<ActiveEventZone> activeEventZones = new ArrayList<>();
 
     private float scaleFactor = 1f;
     private float offsetX;
@@ -64,6 +73,9 @@ public class SimulationCanvasView extends View {
         selectionPaint.setColor(0xFFD79921);
         selectionPaint.setStyle(Paint.Style.STROKE);
         selectionPaint.setStrokeWidth(2.5f * getResources().getDisplayMetrics().density);
+        eventFillPaint.setStyle(Paint.Style.FILL);
+        eventStrokePaint.setStyle(Paint.Style.STROKE);
+        eventStrokePaint.setStrokeWidth(2f * getResources().getDisplayMetrics().density);
 
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
         gestureDetector = new GestureDetector(context, new GestureListener());
@@ -79,6 +91,11 @@ public class SimulationCanvasView extends View {
 
     public void setSelectedEntityType(@Nullable EntityType selectedEntityType) {
         this.selectedEntityType = selectedEntityType;
+        invalidate();
+    }
+
+    public void setActiveEventZones(@NonNull List<ActiveEventZone> activeEventZones) {
+        this.activeEventZones = new ArrayList<>(activeEventZones);
         invalidate();
     }
 
@@ -162,6 +179,7 @@ public class SimulationCanvasView extends View {
         }
 
         drawAnimals(canvas, cellWidth, cellHeight, true);
+        drawActiveEventZones(canvas, cellWidth, cellHeight);
 
         if (gridVisible) {
             for (int y = visibleStartY; y <= visibleEndY; y++) {
@@ -179,6 +197,23 @@ public class SimulationCanvasView extends View {
         if (selectedEntityType != null) {
             selectionPaint.setColor(selectedEntityType.getRenderColor());
             canvas.drawRect(0, 0, getWidth(), getHeight(), selectionPaint);
+        }
+    }
+
+    private void drawActiveEventZones(@NonNull Canvas canvas, float cellWidth, float cellHeight) {
+        float cellSize = Math.min(cellWidth, cellHeight);
+        for (ActiveEventZone activeEventZone : activeEventZones) {
+            if (activeEventZone.eventType() != SimulationEventType.PREDATOR_FRENZY) {
+                continue;
+            }
+            float centerX = offsetX + activeEventZone.centerX() * cellWidth;
+            float centerY = offsetY + activeEventZone.centerY() * cellHeight;
+            float radius = activeEventZone.radiusTiles() * cellSize;
+            float intensity = Math.max(0.25f, activeEventZone.ticksRemaining() / 20f);
+            eventFillPaint.setColor(applyAlpha(0xFFCC241D, 0.18f + (0.14f * intensity)));
+            eventStrokePaint.setColor(applyAlpha(0xFFFB4934, 0.65f + (0.15f * intensity)));
+            canvas.drawCircle(centerX, centerY, radius, eventFillPaint);
+            canvas.drawCircle(centerX, centerY, radius, eventStrokePaint);
         }
     }
 
@@ -329,6 +364,11 @@ public class SimulationCanvasView extends View {
 
     private float clamp(float value, float min, float max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    private int applyAlpha(int color, float alpha) {
+        int alphaChannel = Math.max(0, Math.min(255, Math.round(alpha * 255f)));
+        return (color & 0x00FFFFFF) | (alphaChannel << 24);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
