@@ -2,31 +2,36 @@
 
 Real-time 2D ecosystem sandbox simulation for Android.
 
-### 📖 Documentation
-The full project plan, architectural diagrams, and UI wireframes are available at:
-**[https://oliynykmax.github.io/Tleilax/](https://oliynykmax.github.io/Tleilax/)**
+## Documentation
 
----
- 🌿
+Project documentation, final report, and diagrams:
 
-> A real-time ecosystem sandbox simulation for Android.
-> The name is inspired by the Bene Tleilax from Frank Herbert's *Dune* — a faction known for biological engineering and creating new life forms.
+- [https://oliynykmax.github.io/Tleilax/](https://oliynykmax.github.io/Tleilax/)
 
 ## What is it?
 
-Tleilax is an Android application where you configure a living world and watch it evolve.
-Generate a world, press play, and observe.
-Predators hunt, prey flee, plants spread. No one programs the outcome; it emerges on its own.
+Tleilax is an Android app where the user generates a living world and watches it evolve in real time.
+Predators hunt prey, herbivores search for food, plants grow and die, and the player can interfere while the simulation is running.
+
+The current implementation includes:
+
+- a fixed `256x256` world
+- layered tiles for terrain, grass, plants, and animals
+- real-time tick-based simulation
+- pan and zoom canvas rendering
+- save/load through Room
+- live population statistics
+- runtime events such as disaster and predator frenzy
 
 ## Team
 
-- Maksym
-- Maia
-- Ejota
+- Maksym Oliinyk
+- Maia Salin
+- Ejota Elezaj
 
 ## Tech Stack
 
-- Java, Android Studio
+- Java 21, Android Studio
 - Min SDK 28 / Target SDK 36
 - Room (data persistence)
 - MPAndroidChart (statistics visualization)
@@ -36,28 +41,48 @@ Predators hunt, prey flee, plants spread. No one programs the outcome; it emerge
 - Layered 2D ecosystem with predators, prey, grass, berry bushes, and trees
 - Real-time grid-based simulation
 - Species picker with tap-to-place interaction during simulation
+- Disaster and predator frenzy live events
 - Live population statistics and charts
 - Pan and zoom simulation canvas
 - Save and load simulation states
 - Per-species behavior rules with unique traits
-- Settings for presentation and world generation
+- Settings for presentation and world generation defaults
+
+## Build
+
+```bash
+./gradlew assembleDebug
+```
+
+Install on a connected device or emulator:
+
+```bash
+./gradlew installDebug
+```
+
+Run unit-test verification:
+
+```bash
+./gradlew testDebugUnitTest
+```
 
 ## Project Structure
 
-```
+```text
 app/
 ├── model/          Entity, Animal, Predator, Prey, Plant
-├── simulation/     SimulationEngine, Grid, tick logic
-├── storage/        Room database, save/load
+├── simulation/     SimulationEngine, Grid, TickLogic, PlantState, snapshots
+├── storage/        Room database, save/load, snapshot codec
 ├── ui/
 │   ├── fragments/  SimulationFragment, StatsFragment, SaveLoadFragment, SettingsFragment
-│   └── adapters/   RecyclerView adapters
-└── utils/          StatTracker, helpers
+│   ├── adapters/   RecyclerView adapters
+│   └── view/       SimulationCanvasView, TextureLibrary
+└── utils/          AppSettings, StatTracker, helpers
 ```
 
 ## Status
 
-🚧 In development — OOP course project, deadline April 20, 2026.
+Final course project submission.
 
 ## Asset Credits
 
