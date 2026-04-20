@@ -18,25 +18,40 @@ import com.example.tleilax.simulation.TreeVariant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Loads and caches textures used by the simulation canvas.
+ */
 public class TextureLibrary {
 
     private final Context context;
     private final Map<String, Bitmap> cache = new HashMap<>();
 
+    /**
+     * Creates a texture library scoped to application resources.
+     */
     public TextureLibrary(@NonNull Context context) {
         this.context = context.getApplicationContext();
     }
 
+    /**
+     * Returns the bitmap used for the given terrain type.
+     */
     @NonNull
     public Bitmap getTerrainTexture(@NonNull TerrainType terrainType) {
         return getOrCreate("terrain_" + terrainType.name().toLowerCase(), terrainType.getRenderColor(), Pattern.SAND);
     }
 
+    /**
+     * Returns the bitmap used for grass ground tiles.
+     */
     @NonNull
     public Bitmap getGrassTexture() {
         return getOrCreate("ground_grass", EntityType.GRASS.getRenderColor(), Pattern.GRASS);
     }
 
+    /**
+     * Returns the bitmap used for berry bushes, including dead-state rendering.
+     */
     @NonNull
     public Bitmap getBushTexture(boolean dead) {
         return getOrCreate(dead ? "plant_bush_dead" : "plant_bush_alive",
@@ -44,6 +59,9 @@ public class TextureLibrary {
                 dead ? Pattern.DEAD : Pattern.BUSH);
     }
 
+    /**
+     * Returns the bitmap used for trees of the given size and life state.
+     */
     @NonNull
     public Bitmap getTreeTexture(@NonNull TreeVariant treeVariant, boolean dead) {
         String key = "plant_tree_" + treeVariant.name().toLowerCase() + (dead ? "_dead" : "_alive");
@@ -51,6 +69,9 @@ public class TextureLibrary {
         return getOrCreate(key, color, dead ? Pattern.DEAD : Pattern.TREE);
     }
 
+    /**
+     * Returns the bitmap used for a specific animal type.
+     */
     @NonNull
     public Bitmap getAnimalTexture(@NonNull EntityType entityType) {
         return getOrCreate("animal_" + entityType.name().toLowerCase(), entityType.getRenderColor(), Pattern.ANIMAL);

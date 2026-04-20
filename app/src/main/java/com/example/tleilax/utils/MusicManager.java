@@ -13,6 +13,9 @@ import androidx.annotation.Nullable;
 
 import com.example.tleilax.R;
 
+/**
+ * Manages looping background music and audio focus for the app.
+ */
 public final class MusicManager implements AppSettings.Listener {
 
     private static final String TAG = "MusicManager";
@@ -27,6 +30,9 @@ public final class MusicManager implements AppSettings.Listener {
     private boolean musicEnabled;
     private boolean hasAudioFocus;
 
+    /**
+     * Creates a music manager bound to application context and settings.
+     */
     public MusicManager(@NonNull Context context) {
         musicEnabled = AppSettings.isMusicEnabled(context);
         AppSettings.addListener(this);
@@ -47,6 +53,9 @@ public final class MusicManager implements AppSettings.Listener {
                 .build();
     }
 
+    /**
+     * Starts background music if the feature is enabled and audio focus is available.
+     */
     public void start(@NonNull Context context) {
         if (!musicEnabled) {
             wantsPlay = false;
@@ -60,6 +69,9 @@ public final class MusicManager implements AppSettings.Listener {
         beginPlayback(context);
     }
 
+    /**
+     * Pauses playback and releases audio focus.
+     */
     public void pause() {
         wantsPlay = false;
         if (player != null && player.isPlaying()) {
@@ -68,12 +80,18 @@ public final class MusicManager implements AppSettings.Listener {
         abandonAudioFocus();
     }
 
+    /**
+     * Resumes music when the setting still allows playback.
+     */
     public void resume(@NonNull Context context) {
         if (musicEnabled) {
             start(context);
         }
     }
 
+    /**
+     * Fully tears down playback resources and unregisters settings listeners.
+     */
     public void release() {
         AppSettings.removeListener(this);
         wantsPlay = false;

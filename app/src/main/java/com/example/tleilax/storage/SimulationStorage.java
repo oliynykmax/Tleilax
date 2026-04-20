@@ -10,11 +10,17 @@ import com.example.tleilax.simulation.WorldSnapshot;
 
 import java.util.List;
 
+/**
+ * Room-backed implementation of simulation save/load operations.
+ */
 public class SimulationStorage implements SaveLoad {
 
     @NonNull
     private final SimulationSaveDao saveDao;
 
+    /**
+     * Creates a storage facade backed by the shared Room database.
+     */
     public SimulationStorage(@NonNull Context context) {
         saveDao = SimulationDatabase.getInstance(context).simulationSaveDao();
     }

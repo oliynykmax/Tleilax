@@ -2,6 +2,9 @@ package com.example.tleilax.model;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Base runtime type for all animals and plant-like editor items.
+ */
 public abstract class Entity {
 
     private float preciseX;
@@ -23,6 +26,9 @@ public abstract class Entity {
         this.health = type.getMaxHealth();
     }
 
+    /**
+     * Creates a new runtime animal instance from an entity type.
+     */
     @NonNull
     public static Entity create(@NonNull EntityType type, int x, int y) {
         return switch (type.getFamily()) {
@@ -32,6 +38,9 @@ public abstract class Entity {
         };
     }
 
+    /**
+     * Recreates an entity from persisted snapshot values.
+     */
     @NonNull
     public static Entity restore(@NonNull EntityType type, int x, int y, int energy, int health) {
         Entity entity = create(type, x, y);
@@ -69,6 +78,9 @@ public abstract class Entity {
         return preciseY;
     }
 
+    /**
+     * Updates the entity's precise position used by smooth movement and rendering.
+     */
     public void setPrecisePosition(float preciseX, float preciseY) {
         this.preciseX = preciseX;
         this.preciseY = preciseY;
@@ -82,6 +94,9 @@ public abstract class Entity {
         this.energy = Math.max(0, Math.min(energy, maxEnergy));
     }
 
+    /**
+     * Applies an energy delta while keeping the value within valid bounds.
+     */
     public void changeEnergy(int delta) {
         setEnergy(energy + delta);
     }
@@ -98,6 +113,9 @@ public abstract class Entity {
         this.health = Math.max(0, Math.min(health, type.getMaxHealth()));
     }
 
+    /**
+     * Applies a health delta while keeping the value within valid bounds.
+     */
     public void changeHealth(int delta) {
         setHealth(health + delta);
     }
@@ -126,6 +144,9 @@ public abstract class Entity {
         return type.getClearanceHeight();
     }
 
+    /**
+     * Returns whether the entity is allowed to consume the given resource kind.
+     */
     public boolean canConsume(@NonNull com.example.tleilax.simulation.ResourceKind resourceKind) {
         return type.getConsumableResources().contains(resourceKind);
     }
@@ -134,6 +155,9 @@ public abstract class Entity {
         return type.canTrampleBerryBush();
     }
 
+    /**
+     * Creates offspring of the same type at the provided tile.
+     */
     @NonNull
     public Entity spawnOffspring(int x, int y) {
         return create(type, x, y);
