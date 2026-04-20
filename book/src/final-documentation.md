@@ -23,10 +23,181 @@ Main implementation areas:
 
 ## UML (Implemented Architecture)
 
-The implemented architecture is documented in the project plan UML sections:
+The following diagrams describe the delivered implementation rather than the original plan.
 
-- Class structure and relationships: `book/src/index.md` (Section "Preliminary UML Class Diagram")
-- View architecture and screen structure: `book/src/index.md` (Section "UI Description")
+### Domain Model
+
+```mermaid
+classDiagram
+    class Entity {
+        <<abstract>>
+        +int x
+        +int y
+        +int energy
+        +int health
+        +EntityType type
+        +isAlive() boolean
+        +canReproduce() boolean
+        +spawnOffspring(int x, int y) Entity
+    }
+
+    class Animal {
+        <<abstract>>
+        +int speed
+        +int visionRange
+        +int attackPower
+        +int attackRange
+    }
+
+    class Predator
+    class Prey
+    class Plant
+    class EntityType
+
+    Entity <|-- Animal
+    Animal <|-- Predator
+    Animal <|-- Prey
+    Entity <|-- Plant
+    Entity --> EntityType
+```
+
+### Simulation Core And Persistence
+
+```mermaid
+classDiagram
+    class SimulationEngine {
+        +initializeWorld()
+        +start()
+        +pause()
+        +tickOnce()
+        +reset(int width, int height)
+        +triggerDisaster(int x, int y) boolean
+        +triggerPredatorFrenzy(int x, int y) boolean
+        +getSnapshot() WorldSnapshot
+    }
+
+    class TickLogic {
+        +advance(Grid grid, List~ActiveEventZone~ activeEventZones)
+    }
+
+    class Grid {
+        +getTile(int x, int y) Tile
+        +placeAnimal(Entity entity) boolean
+        +placeBerryBush(int x, int y) boolean
+        +placeTree(int x, int y, TreeVariant variant) boolean
+        +removeAnimal(Entity entity)
+    }
+
+    class Tile {
+        +TerrainType terrainType
+        +int grassAmount
+        +PlantState plantState
+        +Entity animal
+    }
+
+    class PlantState {
+        +PlantType plantType
+        +int durability
+        +int berryAmount
+        +TreeVariant treeVariant
+        +TreeLifeStage treeLifeStage
+        +advanceTick()
+        +supportsResource(ResourceKind kind) boolean
+    }
+
+    class WorldGenerator {
+        +seedWorld(Grid grid, Random random, ...)
+    }
+
+    class WorldSnapshot {
+        <<record>>
+    }
+
+    class ActiveEventZone {
+        <<record>>
+    }
+
+    class SimulationStorage {
+        +save(String name, WorldSnapshot state) long
+        +load(long id) WorldSnapshot
+        +listSaves() List~SimulationSaveEntity~
+        +delete(SimulationSaveEntity save)
+    }
+
+    class SimulationDatabase {
+        <<RoomDatabase>>
+    }
+
+    class SimulationSaveDao {
+        <<DAO>>
+    }
+
+    class SimulationSaveEntity {
+        <<Room Entity>>
+    }
+
+    class WorldSnapshotJsonCodec
+
+    SimulationEngine o-- Grid
+    SimulationEngine --> TickLogic
+    SimulationEngine --> WorldGenerator
+    SimulationEngine --> WorldSnapshot
+    SimulationEngine --> ActiveEventZone
+    Grid o-- Tile
+    Grid --> Entity
+    Tile --> PlantState
+    PlantState --> PlantType
+    PlantState --> TreeVariant
+    PlantState --> TreeLifeStage
+    SimulationStorage --> SimulationDatabase
+    SimulationStorage --> SimulationSaveDao
+    SimulationStorage --> SimulationSaveEntity
+    SimulationStorage --> WorldSnapshotJsonCodec
+    WorldSnapshotJsonCodec --> WorldSnapshot
+```
+
+### UI And Data Flow
+
+```mermaid
+classDiagram
+    class MainActivity
+    class SimulationFragment
+    class StatsFragment
+    class SaveLoadFragment
+    class SettingsFragment
+    class SimulationCanvasView
+    class TextureLibrary
+    class SimulationSession
+    class SimulationEngine
+    class StatTracker
+    class AppSettings
+    class MusicManager
+    class SaveAdapter
+
+    MainActivity --> SimulationFragment
+    MainActivity --> StatsFragment
+    MainActivity --> SaveLoadFragment
+    MainActivity --> SettingsFragment
+
+    SimulationFragment --> SimulationCanvasView
+    SimulationFragment --> SimulationSession
+    SimulationFragment --> SimulationEngine
+    SimulationFragment --> AppSettings
+
+    StatsFragment --> SimulationEngine
+    StatsFragment --> StatTracker
+
+    SaveLoadFragment --> SimulationSession
+    SaveLoadFragment --> SaveAdapter
+    SaveLoadFragment --> SimulationStorage
+
+    SettingsFragment --> AppSettings
+    SettingsFragment --> SimulationSession
+    SettingsFragment --> SimulationStorage
+
+    SimulationCanvasView --> TextureLibrary
+    MusicManager --> AppSettings
+```
 
 These diagrams match the delivered implementation at package level:
 
