@@ -70,11 +70,16 @@ Testing:
 
 ## Team Composition And Work Sharing
 
-- Maksym Oliinyk: simulation engine architecture, core world model, integration and release readiness.
-- Maia Salin: UI/UX iteration across fragments, settings flow, simulation controls polish.
-- Ejota Elezaj: gameplay balancing support, validation, and feature-level testing/documentation support.
+- Maia Salin: statistics implementation and UI/UX work.
+- Ejota Elezaj: entity class design and class relationships.
+- Maksym Oliinyk: save/load feature implementation and rendering engine.
+- Shared work: remaining features were implemented collaboratively after the initial split, with pairing-programming style integration and refinement.
 
-Team members reviewed each other's changes and worked in the same repository branch history with co-authored commits where applicable.
+Development process:
+
+- The team used a protected `main` branch and pull request workflow during the main development phase.
+- GitHub Issues were used to track remaining tasks and progress.
+- Development decisions were documented continuously in `book/src/development-decisions.md`.
 
 ## Tools Used
 
@@ -89,21 +94,21 @@ Team members reviewed each other's changes and worked in the same repository bra
 
 This section is included explicitly for grading.
 
-| Feature | Status | Notes | Points |
-|---|---|---|---|
-| RecyclerView | Implemented | Save/Load list uses RecyclerView | +1 |
-| Species Images | Implemented | Distinct species sprites on canvas | +1 |
-| Simulation Visualization | Implemented | Real-time canvas updates with pan/zoom | +2 |
-| Tactical Combat | Implemented | User intervention via tap-to-place and live event controls | +2 |
-| Statistics | Implemented | Per-tick population tracking | +1 |
-| Statistics Visualization | Implemented | MPAndroidChart line graph | +2 |
-| Specialization Bonuses | Implemented | Species-specific speed/vision/energy/attack traits | +2 |
-| Randomness | Not implemented (full scope) | Movement/reproduction randomness exists, mutation de-scoped | +0 |
-| Fragments | Implemented | Simulation / Stats / Save-Load / Settings | +2 |
-| Data Storage & Loading | Implemented | Room-backed saves and restore | +2 |
-| Custom Feature X | Implemented | Live environmental events (Disaster, Predator Frenzy) | +2 |
+| Feature | Status | Notes | Where in app / code | Points |
+|---|---|---|---|---|
+| RecyclerView | Implemented | Save/Load list uses RecyclerView | Save/Load tab; `SaveLoadFragment`, `SaveAdapter` | +1 |
+| Species Images | Implemented | Distinct species sprites on canvas | Simulation tab; `SimulationCanvasView`, `TextureLibrary` | +1 |
+| Simulation Visualization | Implemented | Real-time canvas updates with pan/zoom | Simulation tab; `SimulationCanvasView`, `SimulationFragment` | +2 |
+| Tactical Combat | Implemented | User intervention via tap-to-place and live event controls | `SimulationFragment`, `SimulationEngine.triggerDisaster`, `SimulationEngine.triggerPredatorFrenzy` | +2 |
+| Statistics | Implemented | Per-tick population tracking | Stats tab; `StatsFragment`, `StatTracker` | +1 |
+| Statistics Visualization | Implemented | MPAndroidChart line graph | Stats tab; `StatsFragment` | +2 |
+| Specialization Bonuses | Implemented | Species-specific speed/vision/energy/attack traits | `EntityType`, `TickLogic` | +2 |
+| Randomness | Implemented | Randomized movement and reproduction probability are implemented; mutation was de-scoped | `TickLogic` (movement + reproduction chance) | +1 |
+| Fragments | Implemented | Simulation / Stats / Save-Load / Settings | `SimulationFragment`, `StatsFragment`, `SaveLoadFragment`, `SettingsFragment` | +2 |
+| Data Storage & Loading | Implemented | Room-backed saves and restore | Save/Load tab; `SimulationStorage`, `SimulationSaveDao`, `SimulationSaveEntity` | +2 |
+| Custom Feature X | Implemented | Live environmental events (Disaster, Predator Frenzy) | `SimulationEngine`, `ActiveEventZone`, `SimulationCanvasView` | +2 |
 
-Total bonus points implemented: **17**
+Total bonus points implemented: **18**
 
 ## Scope Changes During Development
 

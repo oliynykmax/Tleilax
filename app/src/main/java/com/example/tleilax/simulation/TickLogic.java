@@ -58,7 +58,9 @@ public class TickLogic {
         this.random = random;
     }
 
-
+    /**
+     * Advances world state by one tick while applying active event-zone modifiers.
+     */
     public void advance(@NonNull Grid grid, @NonNull List<ActiveEventZone> activeEventZones) {
         advancePlantLayers(grid);
 

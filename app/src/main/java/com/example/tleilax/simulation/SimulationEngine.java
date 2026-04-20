@@ -18,8 +18,11 @@ import java.util.Random;
 public class SimulationEngine {
 
     public static final int FIXED_WORLD_SIZE = 256;
+    /** Disaster cast radius in tiles. */
     public static final int DISASTER_RADIUS_TILES = 5;
+    /** Predator frenzy cast radius in tiles. */
     public static final int PREDATOR_FRENZY_RADIUS_TILES = 10;
+    /** Predator frenzy duration in simulation ticks. */
     public static final int PREDATOR_FRENZY_DURATION_TICKS = 20;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -152,6 +155,10 @@ public class SimulationEngine {
         return placed;
     }
 
+    /**
+     * Applies an instant disaster effect that clears animals, grass, and plants
+     * inside {@link #DISASTER_RADIUS_TILES}.
+     */
     public boolean triggerDisaster(int centerX, int centerY) {
         if (grid == null) {
             return false;
@@ -176,6 +183,9 @@ public class SimulationEngine {
         return true;
     }
 
+    /**
+     * Creates a timed predator frenzy zone centered on the tapped tile.
+     */
     public boolean triggerPredatorFrenzy(int centerX, int centerY) {
         if (grid == null) {
             return false;
@@ -191,6 +201,9 @@ public class SimulationEngine {
         return true;
     }
 
+    /**
+     * Returns a defensive copy of active runtime event zones.
+     */
     @NonNull
     public List<ActiveEventZone> getActiveEventZones() {
         return new ArrayList<>(activeEventZones);
