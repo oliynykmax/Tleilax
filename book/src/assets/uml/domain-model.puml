@@ -1,0 +1,43 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam classFontName Helvetica
+skinparam ArrowColor #4B5563
+skinparam ClassBorderColor #1F2937
+skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassHeaderBackgroundColor #E5E7EB
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+abstract class Entity {
+  +x : int
+  +y : int
+  +energy : int
+  +health : int
+  +type : EntityType
+  +isAlive() : boolean
+  +canReproduce() : boolean
+  +spawnOffspring(x, y) : Entity
+}
+
+abstract class Animal {
+  +speed : int
+  +visionRange : int
+  +attackPower : int
+  +attackRange : int
+}
+
+class Predator
+class Prey
+class Plant
+enum EntityType
+
+Entity <|-- Animal
+Animal <|-- Predator
+Animal <|-- Prey
+Entity <|-- Plant
+Entity --> EntityType
+@enduml
