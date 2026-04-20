@@ -201,6 +201,14 @@ public class Grid {
         return animals;
     }
 
+    public void forEachTile(@NonNull TileConsumer consumer) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                consumer.accept(x, y, tiles[y][x]);
+            }
+        }
+    }
+
     /**
      * Returns cardinal neighbor positions for the given tile.
      */
@@ -364,5 +372,10 @@ public class Grid {
     }
 
     public record Position(int x, int y) {
+    }
+
+    @FunctionalInterface
+    public interface TileConsumer {
+        void accept(int x, int y, @NonNull Tile tile);
     }
 }

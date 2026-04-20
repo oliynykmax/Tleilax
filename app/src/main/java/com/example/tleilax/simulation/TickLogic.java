@@ -531,20 +531,17 @@ public class TickLogic {
     }
 
     private int countLivingBerryBushes(@NonNull Grid grid) {
-        int count = 0;
-        for (int y = 0; y < grid.getHeight(); y++) {
-            for (int x = 0; x < grid.getWidth(); x++) {
-                Tile tile = grid.getTile(x, y);
-                if (tile == null || tile.getPlantState() == null) {
-                    continue;
-                }
-                PlantState plantState = tile.getPlantState();
-                if (plantState.getPlantType() == PlantType.BERRY_BUSH && !plantState.isDead()) {
-                    count++;
-                }
+        int[] count = {0};
+        grid.forEachTile((x, y, tile) -> {
+            if (tile.getPlantState() == null) {
+                return;
             }
-        }
-        return count;
+            PlantState plantState = tile.getPlantState();
+            if (plantState.getPlantType() == PlantType.BERRY_BUSH && !plantState.isDead()) {
+                count[0]++;
+            }
+        });
+        return count[0];
     }
 
 

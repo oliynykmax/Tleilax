@@ -1,0 +1,1493 @@
+{
+  "version": 3,
+  "created": "2026-04-20T20:18:40+00:00",
+  "last_scan": "2026-04-20T20:22:31+00:00",
+  "scan_count": 2,
+  "overall_score": 23.9,
+  "objective_score": 95.8,
+  "strict_score": 23.9,
+  "verified_strict_score": 95.8,
+  "stats": {
+    "total": 9,
+    "auto_resolved": 0,
+    "deferred": 0,
+    "false_positive": 0,
+    "fixed": 0,
+    "open": 9,
+    "triaged_out": 0,
+    "wontfix": 0,
+    "by_tier": {
+      "3": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 0,
+        "open": 9,
+        "triaged_out": 0,
+        "wontfix": 0
+      }
+    }
+  },
+  "work_items": {
+    "structural::app/src/main/java/com/example/tleilax/simulation/TickLogic.java": {
+      "id": "structural::app/src/main/java/com/example/tleilax/simulation/TickLogic.java",
+      "detector": "structural",
+      "file": "app/src/main/java/com/example/tleilax/simulation/TickLogic.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (613 LOC)",
+      "detail": {
+        "loc": 613
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:40+00:00",
+      "last_seen": "2026-04-20T20:22:31+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::254dd8974d994748": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::254dd8974d994748",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 14 lines): app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java:164, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:352",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 14,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+            "line": 164
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 352
+          }
+        ],
+        "sample": [
+          "tSaveName.requestFocus();",
+          "        if (dialog.getWindow() != null) {",
+          "            int bottomOffset = (int) TypedValue.applyDimension(",
+          "                    TypedValue.COMPLEX_UNIT_DIP,"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:18:50+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::34c959f10157e441": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::34c959f10157e441",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 13 lines): app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java:136, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:325",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 13,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+            "line": 136
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 325
+          }
+        ],
+        "sample": [
+          "d(R.id.input_save_name);",
+          "        AlertDialog dialog = new AlertDialog.Builder(requireContext())",
+          "                .setView(dialogView)",
+          "                .create();"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:18:50+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java::99c6b620f9d84aa4": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java::99c6b620f9d84aa4",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 8 lines): app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java:1, app/src/main/java/com/example/tleilax/ui/view/TextureLibrary.java:10",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 8,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java",
+            "line": 1
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/view/TextureLibrary.java",
+            "line": 10
+          }
+        ],
+        "sample": [
+          ";",
+          "",
+          "import androidx.annotation.NonNull;",
+          ""
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:22:31+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::b8e0dd2d38d183d8": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::b8e0dd2d38d183d8",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 16 lines): app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java:189, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:350",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 16,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+            "line": 189
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 350
+          }
+        ],
+        "sample": [
+          "dialog.dismiss();",
+          "        });",
+          "        dialog.show();",
+          "        if (dialog.getWindow() != null) {"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:18:50+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/simulation/SimulationEngine.java::baacfebdaffd8c36": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/simulation/SimulationEngine.java::baacfebdaffd8c36",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/simulation/SimulationEngine.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 5 lines): app/src/main/java/com/example/tleilax/simulation/SimulationEngine.java:220, app/src/main/java/com/example/tleilax/simulation/TickLogic.java:534",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 5,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/simulation/SimulationEngine.java",
+            "line": 220
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/simulation/TickLogic.java",
+            "line": 534
+          }
+        ],
+        "sample": [
+          "    }",
+          "        List<WorldSnapshot.CellSnapshot> cells = new ArrayList<>();",
+          "        for (int y = 0; y < grid.getHeight(); y++) {",
+          "            for (int x = 0; x < grid.getWidth(); x++) {"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:18:50+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::fae3e5e04bb18105": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::fae3e5e04bb18105",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 12 lines): app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java:177, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:325",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 12,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+            "line": 177
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 325
+          }
+        ],
+        "sample": [
+          ", null, false);",
+          "        AlertDialog dialog = new AlertDialog.Builder(requireContext())",
+          "                .setView(dialogView)",
+          "                .create();"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:18:50+00:00",
+      "last_seen": "2026-04-20T20:18:50+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::b82e025e693f7144": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java::b82e025e693f7144",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 6 lines): app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java:134, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:324",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 6,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+            "line": 134
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 324
+          }
+        ],
+        "sample": [
+          "d(R.id.input_save_name);",
+          "        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);",
+          "",
+          "        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:22:31+00:00",
+      "last_seen": "2026-04-20T20:22:31+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::e6c43c0d906eba27": {
+      "id": "boilerplate_duplication::app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java::e6c43c0d906eba27",
+      "detector": "boilerplate_duplication",
+      "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Boilerplate block repeated across 2 files (window 5 lines): app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java:175, app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java:324",
+      "detail": {
+        "distinct_files": 2,
+        "window_size": 5,
+        "locations": [
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+            "line": 175
+          },
+          {
+            "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+            "line": 324
+          }
+        ],
+        "sample": [
+          ", null, false);",
+          "        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);",
+          "        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());",
+          "        dialogView.findViewById(R.id.btn_dialog_confirm).setOnClickListener(v -> {"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-04-20T20:22:31+00:00",
+      "last_seen": "2026-04-20T20:22:31+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "java",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    }
+  },
+  "scan_coverage": {
+    "java": {
+      "status": "reduced",
+      "confidence": 0.0,
+      "detectors": {
+        "pmd_violation": {
+          "detector": "pmd_violation",
+          "status": "reduced",
+          "confidence": 0.0,
+          "summary": "pmd tooling unavailable (tool_failed_unparsed_output)",
+          "impact": "Detector results may be under-reported for this scan.",
+          "remediation": "Install/fix the tool command and rerun scan.",
+          "tool": "pmd",
+          "reason": "tool_failed_unparsed_output"
+        },
+        "security": {
+          "detector": "security",
+          "status": "full",
+          "confidence": 1.0,
+          "summary": "Security coverage complete for enabled detectors.",
+          "impact": "",
+          "remediation": "",
+          "tool": "",
+          "reason": ""
+        }
+      },
+      "warnings": [
+        {
+          "detector": "pmd_violation",
+          "status": "reduced",
+          "confidence": 0.0,
+          "summary": "pmd tooling unavailable (tool_failed_unparsed_output)",
+          "impact": "Detector results may be under-reported for this scan.",
+          "remediation": "Install/fix the tool command and rerun scan.",
+          "tool": "pmd",
+          "reason": "tool_failed_unparsed_output"
+        }
+      ],
+      "updated_at": "2026-04-20T20:22:31+00:00"
+    }
+  },
+  "score_confidence": {
+    "status": "reduced",
+    "confidence": 0.0,
+    "detectors": [
+      {
+        "detector": "pmd_violation",
+        "status": "reduced",
+        "confidence": 0.0,
+        "summary": "pmd tooling unavailable (tool_failed_unparsed_output)",
+        "impact": "Detector results may be under-reported for this scan.",
+        "remediation": "Install/fix the tool command and rerun scan.",
+        "tool": "pmd",
+        "reason": "tool_failed_unparsed_output"
+      }
+    ],
+    "dimensions": []
+  },
+  "scan_metadata": {
+    "source": "scan"
+  },
+  "subjective_integrity": {
+    "status": "pass",
+    "target_score": 85.0,
+    "matched_count": 0,
+    "matched_dimensions": [],
+    "reset_dimensions": []
+  },
+  "subjective_assessments": {},
+  "scan_history": [
+    {
+      "timestamp": "2026-04-20T20:18:50+00:00",
+      "lang": "java",
+      "strict_score": 24.1,
+      "verified_strict_score": 96.3,
+      "objective_score": 96.3,
+      "overall_score": 24.1,
+      "open": 7,
+      "diff_new": 7,
+      "diff_resolved": 0,
+      "ignored": 0,
+      "raw_issues": 7,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "pass",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": 85.0
+      },
+      "score_confidence": {
+        "status": "reduced",
+        "confidence": 0.0,
+        "detector_count": 1,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "Security": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "File health": {
+          "score": 98.4,
+          "strict": 98.4
+        },
+        "Duplication": {
+          "score": 40.0,
+          "strict": 40.0
+        },
+        "Abstraction fit": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "AI generated debt": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "API coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Auth consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Contracts": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Convention drift": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Cross-module arch": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Dep health": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Design coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Error consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "High elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Stale migration": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Init coupling": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Logic clarity": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Low elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Mid elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Naming quality": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Structure nav": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Test strategy": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Type safety": {
+          "score": 0.0,
+          "strict": 0.0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-04-20T20:22:31+00:00",
+      "lang": "java",
+      "strict_score": 23.9,
+      "verified_strict_score": 95.8,
+      "objective_score": 95.8,
+      "overall_score": 23.9,
+      "open": 9,
+      "diff_new": 2,
+      "diff_resolved": 0,
+      "ignored": 0,
+      "raw_issues": 4,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "pass",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": 85.0
+      },
+      "score_confidence": {
+        "status": "reduced",
+        "confidence": 0.0,
+        "detector_count": 1,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "Security": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "File health": {
+          "score": 98.4,
+          "strict": 98.4
+        },
+        "Duplication": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Abstraction fit": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "AI generated debt": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "API coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Auth consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Contracts": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Convention drift": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Cross-module arch": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Dep health": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Design coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Error consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "High elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Stale migration": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Init coupling": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Logic clarity": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Low elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Mid elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Naming quality": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Structure nav": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Test strategy": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Type safety": {
+          "score": 0.0,
+          "strict": 0.0
+        }
+      }
+    }
+  ],
+  "review_cache": {
+    "detectors": {
+      "boilerplate": {
+        "version": 1,
+        "fingerprint": "7869c7b08c360b83404c6c41403a731fe9891ce7",
+        "entries": [
+          {
+            "id": "4da3d1b4e2f713e2",
+            "distinct_files": 3,
+            "window_size": 11,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_reset_confirmation.xml",
+                "line": 21
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_save_world.xml",
+                "line": 21
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 21
+              }
+            ],
+            "sample": [
+              "\"",
+              "            android:textColor=\"@color/text_muted\"",
+              "            android:fontFamily=\"sans-serif-medium\"",
+              "            android:letterSpacing=\"0.04\""
+            ]
+          },
+          {
+            "id": "9a7970d119c74fb4",
+            "distinct_files": 3,
+            "window_size": 10,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_reset_confirmation.xml",
+                "line": 31
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_save_world.xml",
+                "line": 31
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 31
+              }
+            ],
+            "sample": [
+              "\"",
+              "            android:textColor=\"@color/text_primary\"",
+              "            android:fontFamily=\"sans-serif-medium\"",
+              "            android:textSize=\"17sp\" />"
+            ]
+          },
+          {
+            "id": "28d01a5d0bf2f10a",
+            "distinct_files": 2,
+            "window_size": 12,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 10
+              },
+              {
+                "file": "app/src/main/res/layout/fragment_settings.xml",
+                "line": 7
+              }
+            ],
+            "sample": [
+              "\">",
+              "",
+              "    <LinearLayout",
+              "        android:layout_width=\"match_parent\""
+            ]
+          },
+          {
+            "id": "71cd055cb0c21050",
+            "distinct_files": 2,
+            "window_size": 12,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_save_world.xml",
+                "line": 77
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 56
+              }
+            ],
+            "sample": [
+              "\" />",
+              "",
+              "            <View",
+              "                android:layout_width=\"10dp\""
+            ]
+          },
+          {
+            "id": "89b7a94754767773",
+            "distinct_files": 2,
+            "window_size": 21,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_save_world.xml",
+                "line": 1
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 1
+              }
+            ],
+            "sample": [
+              "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+              "<com.google.android.material.card.MaterialCardView xmlns:android=\"http://schemas.android.com/apk/res/android\"",
+              "    xmlns:app=\"http://schemas.android.com/apk/res-auto\"",
+              "    android:layout_width=\"300dp\""
+            ]
+          },
+          {
+            "id": "99c6b620f9d84aa4",
+            "distinct_files": 2,
+            "window_size": 8,
+            "locations": [
+              {
+                "file": "app/src/main/java/com/example/tleilax/storage/WorldSnapshotJsonCodec.java",
+                "line": 1
+              },
+              {
+                "file": "app/src/main/java/com/example/tleilax/ui/view/TextureLibrary.java",
+                "line": 10
+              }
+            ],
+            "sample": [
+              ";",
+              "",
+              "import androidx.annotation.NonNull;",
+              ""
+            ]
+          },
+          {
+            "id": "ae4266673273ab96",
+            "distinct_files": 2,
+            "window_size": 18,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_reset_confirmation.xml",
+                "line": 4
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 4
+              }
+            ],
+            "sample": [
+              "\"",
+              "    android:layout_height=\"wrap_content\"",
+              "    app:cardBackgroundColor=\"@color/bg_surface\"",
+              "    app:cardCornerRadius=\"18dp\""
+            ]
+          },
+          {
+            "id": "b47284d95439ed64",
+            "distinct_files": 2,
+            "window_size": 13,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_save_world.xml",
+                "line": 65
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 44
+              }
+            ],
+            "sample": [
+              "<LinearLayout",
+              "            android:layout_width=\"match_parent\"",
+              "            android:layout_height=\"wrap_content\"",
+              "            android:layout_marginTop=\"16dp\""
+            ]
+          },
+          {
+            "id": "b82e025e693f7144",
+            "distinct_files": 2,
+            "window_size": 6,
+            "locations": [
+              {
+                "file": "app/src/main/java/com/example/tleilax/ui/fragments/SaveLoadFragment.java",
+                "line": 134
+              },
+              {
+                "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+                "line": 324
+              }
+            ],
+            "sample": [
+              "d(R.id.input_save_name);",
+              "        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);",
+              "",
+              "        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());"
+            ]
+          },
+          {
+            "id": "e481fca77f7e348b",
+            "distinct_files": 2,
+            "window_size": 27,
+            "locations": [
+              {
+                "file": "app/src/main/res/layout/dialog_reset_confirmation.xml",
+                "line": 42
+              },
+              {
+                "file": "app/src/main/res/layout/dialog_settings_reset_everything.xml",
+                "line": 41
+              }
+            ],
+            "sample": [
+              "\"",
+              "            android:textSize=\"12sp\" />",
+              "",
+              "        <LinearLayout"
+            ]
+          },
+          {
+            "id": "e6c43c0d906eba27",
+            "distinct_files": 2,
+            "window_size": 5,
+            "locations": [
+              {
+                "file": "app/src/main/java/com/example/tleilax/ui/fragments/SettingsFragment.java",
+                "line": 175
+              },
+              {
+                "file": "app/src/main/java/com/example/tleilax/ui/fragments/SimulationFragment.java",
+                "line": 324
+              }
+            ],
+            "sample": [
+              ", null, false);",
+              "        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);",
+              "        dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());",
+              "        dialogView.findViewById(R.id.btn_dialog_confirm).setOnClickListener(v -> {"
+            ]
+          }
+        ]
+      },
+      "security": {
+        "version": 1,
+        "fingerprint": "4e58a0606dc443c441e6e0bf5e9fd2d396c502d6",
+        "entries": [],
+        "files_scanned": 0,
+        "coverage": null
+      },
+      "dupes": {}
+    }
+  },
+  "lang_capabilities": {
+    "java": {
+      "fixers": [],
+      "typecheck_cmd": ""
+    }
+  },
+  "zone_distribution": {
+    "production": 44
+  },
+  "tool_hash": "9790f983f730",
+  "scan_path": ".",
+  "scan_completeness": {
+    "java": "full"
+  },
+  "potentials": {
+    "java": {
+      "structural": 44,
+      "flat_dirs": 15,
+      "security": 44,
+      "boilerplate_duplication": 5,
+      "dupes": 0,
+      "stale_wontfix": 0
+    }
+  },
+  "codebase_metrics": {
+    "java": {
+      "total_files": 44,
+      "total_loc": 5615,
+      "total_directories": 8
+    }
+  },
+  "dimension_scores": {
+    "Code quality": {
+      "score": 100.0,
+      "strict": 100.0,
+      "verified_strict_score": 100.0,
+      "checks": 15,
+      "failing": 0,
+      "tier": 3,
+      "detectors": {
+        "flat_dirs": {
+          "potential": 15,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
+    },
+    "Security": {
+      "score": 100.0,
+      "strict": 100.0,
+      "verified_strict_score": 100.0,
+      "checks": 44,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "security": {
+          "potential": 44,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
+    },
+    "File health": {
+      "score": 98.4,
+      "strict": 98.4,
+      "verified_strict_score": 98.4,
+      "checks": 44,
+      "failing": 1,
+      "tier": 3,
+      "detectors": {
+        "structural": {
+          "potential": 44,
+          "pass_rate": 0.984090909090909,
+          "failing": 1,
+          "weighted_failures": 0.7
+        }
+      }
+    },
+    "Duplication": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 5,
+      "failing": 8,
+      "tier": 3,
+      "detectors": {
+        "boilerplate_duplication": {
+          "potential": 5,
+          "pass_rate": 0.0,
+          "failing": 8,
+          "weighted_failures": 5.6000000000000005
+        }
+      }
+    },
+    "Abstraction fit": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "abstraction_fitness",
+          "configured_weight": 8.0,
+          "components": []
+        }
+      }
+    },
+    "AI generated debt": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "ai_generated_debt",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "API coherence": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "api_surface_coherence",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Auth consistency": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "authorization_consistency",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Contracts": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "contract_coherence",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Convention drift": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "convention_outlier",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Cross-module arch": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "cross_module_architecture",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Dep health": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "dependency_health",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Design coherence": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "design_coherence",
+          "configured_weight": 10.0,
+          "components": []
+        }
+      }
+    },
+    "Error consistency": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "error_consistency",
+          "configured_weight": 3.0,
+          "components": []
+        }
+      }
+    },
+    "High elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "high_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Stale migration": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "incomplete_migration",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Init coupling": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "initialization_coupling",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Logic clarity": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "logic_clarity",
+          "configured_weight": 6.0,
+          "components": []
+        }
+      }
+    },
+    "Low elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "low_level_elegance",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Mid elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "mid_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Naming quality": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "naming_quality",
+          "configured_weight": 2.0,
+          "components": []
+        }
+      }
+    },
+    "Structure nav": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "package_organization",
+          "configured_weight": 5.0,
+          "components": []
+        }
+      }
+    },
+    "Test strategy": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "test_strategy",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Type safety": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "type_safety",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    }
+  },
+  "reminder_history": {
+    "report_scores": 2,
+    "feedback_nudge": 1
+  }
+}

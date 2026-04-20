@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,9 +60,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         super.onViewCreated(view, savedInstanceState);
 
         SimulationSession.getEngine().addListener(this);
-        binding.btnPlayPause.setIconResource(
-                SimulationSession.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
-        );
+        syncPlayPauseButton();
 
         setupPlayPause();
         setupSpeedControl();
@@ -99,9 +96,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             }
             boolean playing = !SimulationSession.isPlaying();
             SimulationSession.setPlaying(playing);
-            binding.btnPlayPause.setIconResource(
-                    playing ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
-            );
+            syncPlayPauseButton();
         });
     }
 
@@ -247,6 +242,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         binding.textTickCount.setText(getString(R.string.cycle_count, snapshot.tickCount()));
         binding.simulationCanvas.setWorldSnapshot(snapshot);
         binding.simulationCanvas.setActiveEventZones(resolveActiveEventZones());
+        syncPlayPauseButton();
         loadingCompleted = true;
         maybeFinishLoading();
     }
@@ -318,19 +314,13 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
         binding.btnPlayPause.setEnabled(true);
         binding.btnReset.setEnabled(true);
         binding.speedToggleGroup.setEnabled(true);
+        syncPlayPauseButton();
     }
 
     private void showResetDialog() {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_reset_confirmation, null, false);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.getWindow().setDimAmount(0.08f);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-        }
+        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);
 
         dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_dialog_confirm).setOnClickListener(v -> {
@@ -349,17 +339,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             }
             dialog.dismiss();
         });
-        dialog.show();
-        if (dialog.getWindow() != null) {
-            int bottomOffset = (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    28,
-                    requireContext().getResources().getDisplayMetrics()
-            );
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-            dialog.getWindow().getAttributes().y = bottomOffset;
-        }
+        DialogStyler.showBottomDialog(requireContext(), dialog);
     }
 
     private void tickLoadingProgress() {
@@ -389,6 +369,18 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             binding.progressLoading.setProgress(100);
             hideLoadingOverlay();
         }
+    }
+
+    /**
+     * Keeps the play/pause icon aligned with the shared session playback state.
+     */
+    private void syncPlayPauseButton() {
+        if (binding == null) {
+            return;
+        }
+        binding.btnPlayPause.setIconResource(
+                SimulationSession.isPlaying() ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play
+        );
     }
 
     @NonNull
