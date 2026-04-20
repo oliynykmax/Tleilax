@@ -8,6 +8,9 @@ import androidx.annotation.NonNull;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+/**
+ * Central access point for user-configurable application settings.
+ */
 public final class AppSettings {
 
     private static final String PREFS_NAME = "tleilax_settings";
@@ -60,6 +63,9 @@ public final class AppSettings {
         return preferences(context).getInt(KEY_GRASS_COVERAGE_PERCENT, 60);
     }
 
+    /**
+     * Persists grass coverage for the next generated world and notifies listeners.
+     */
     public static void setGrassCoveragePercent(@NonNull Context context, int percent) {
         int normalized = Math.max(0, Math.min(100, percent));
         preferences(context).edit().putInt(KEY_GRASS_COVERAGE_PERCENT, normalized).apply();
@@ -116,6 +122,9 @@ public final class AppSettings {
         preferences(context).edit().putInt(KEY_TREE_COUNT, normalizeSpawnCount(count)).apply();
     }
 
+    /**
+     * Restores all settings-backed values to their default state.
+     */
     public static void resetToDefaults(@NonNull Context context) {
         SharedPreferences preferences = preferences(context);
         preferences.edit()
@@ -136,10 +145,16 @@ public final class AppSettings {
         }
     }
 
+    /**
+     * Registers a listener that should react to setting changes while the app is running.
+     */
     public static void addListener(@NonNull Listener listener) {
         LISTENERS.add(listener);
     }
 
+    /**
+     * Removes a previously registered settings listener.
+     */
     public static void removeListener(@NonNull Listener listener) {
         LISTENERS.remove(listener);
     }
@@ -153,6 +168,9 @@ public final class AppSettings {
         return Math.max(0, Math.min(MAX_SPAWN_COUNT, count));
     }
 
+    /**
+     * Listener for settings values that affect active UI or runtime behavior.
+     */
     public interface Listener {
         void onMusicEnabledChanged(boolean enabled);
 

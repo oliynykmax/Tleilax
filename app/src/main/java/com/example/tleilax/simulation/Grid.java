@@ -10,12 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Mutable world grid storing terrain, plants, grass, and animals per tile.
+ */
 public class Grid {
 
     private final int width;
     private final int height;
     private final Tile[][] tiles;
 
+    /**
+     * Creates an empty grid filled with default sand terrain.
+     */
     public Grid(int width, int height) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Grid dimensions must be positive.");
@@ -30,6 +36,9 @@ public class Grid {
         }
     }
 
+    /**
+     * Rebuilds a grid instance from a serialized world snapshot.
+     */
     @NonNull
     public static Grid fromSnapshot(@NonNull WorldSnapshot snapshot) {
         Grid grid = new Grid(snapshot.width(), snapshot.height());
@@ -97,6 +106,9 @@ public class Grid {
         return tile != null ? tile.getAnimal() : null;
     }
 
+    /**
+     * Places an animal on its current tile if the destination is free and traversable.
+     */
     public boolean placeAnimal(@NonNull Entity entity) {
         Tile tile = getRequiredTile(entity.getX(), entity.getY());
         if (tile.getAnimal() != null || !canAnimalOccupy(entity, entity.getX(), entity.getY())) {
@@ -107,6 +119,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Removes an animal from the tile it currently occupies.
+     */
     public boolean removeAnimal(@NonNull Entity entity) {
         Tile tile = getTile(entity.getX(), entity.getY());
         if (tile == null || tile.getAnimal() != entity) {
@@ -116,6 +131,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Moves an animal by whole-tile coordinates.
+     */
     public boolean moveAnimal(@NonNull Entity entity, int newX, int newY) {
         Tile origin = getTile(entity.getX(), entity.getY());
         Tile destination = getTile(newX, newY);
@@ -133,6 +151,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Moves an animal using sub-tile coordinates while keeping tile occupancy valid.
+     */
     public boolean moveAnimalPrecise(@NonNull Entity entity, float newPreciseX, float newPreciseY) {
         float clampedX = clampToWorld(newPreciseX, width);
         float clampedY = clampToWorld(newPreciseY, height);
@@ -164,6 +185,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Returns all currently placed animals.
+     */
     @NonNull
     public List<Entity> getAnimals() {
         List<Entity> animals = new ArrayList<>();
@@ -177,6 +201,9 @@ public class Grid {
         return animals;
     }
 
+    /**
+     * Returns cardinal neighbor positions for the given tile.
+     */
     @NonNull
     public List<Position> getAdjacentPositions(int x, int y) {
         List<Position> neighbors = new ArrayList<>(4);
@@ -187,6 +214,9 @@ public class Grid {
         return neighbors;
     }
 
+    /**
+     * Returns adjacent positions that do not currently contain an animal.
+     */
     @NonNull
     public List<Position> getAdjacentEmptyPositions(int x, int y) {
         List<Position> emptyPositions = new ArrayList<>();
@@ -217,6 +247,9 @@ public class Grid {
         return emptyPositions;
     }
 
+    /**
+     * Sets grass on a tile unless a blocking plant prevents ground growth there.
+     */
     public void setGrass(int x, int y, int grassAmount) {
         Tile tile = getRequiredTile(x, y);
         if (tile.getPlantState() != null && !tile.getPlantState().canSpreadGrassUnderneath()) {
@@ -230,6 +263,9 @@ public class Grid {
         getRequiredTile(x, y).clearGrass();
     }
 
+    /**
+     * Places a berry bush on the target tile when no tree is already present.
+     */
     public boolean placeBerryBush(int x, int y) {
         Tile tile = getRequiredTile(x, y);
         if (tile.getPlantState() != null && tile.getPlantState().getPlantType() == PlantType.TREE) {
@@ -239,6 +275,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * Places a tree and clears grass under it.
+     */
     public boolean placeTree(int x, int y, @NonNull TreeVariant treeVariant) {
         Tile tile = getRequiredTile(x, y);
         tile.clearGrass();
@@ -250,6 +289,9 @@ public class Grid {
         getRequiredTile(x, y).setPlantState(null);
     }
 
+    /**
+     * Places the selected editor item using the correct layer-specific rule.
+     */
     public boolean placeSelection(@NonNull EntityType entityType, int x, int y) {
         return switch (entityType) {
             case WOLF, RABBIT, MOUSE, DEER -> replaceAnimal(entityType, x, y);

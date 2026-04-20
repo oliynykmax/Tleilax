@@ -12,6 +12,9 @@ import com.example.tleilax.simulation.WorldSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Encodes and decodes world snapshots into a compact line-based text format.
+ */
 public final class WorldSnapshotJsonCodec {
 
     private static final String HEADER_PREFIX = "TLEILAX_SNAPSHOT_V2";
@@ -21,6 +24,9 @@ public final class WorldSnapshotJsonCodec {
     private WorldSnapshotJsonCodec() {
     }
 
+    /**
+     * Serializes a full world snapshot for database storage.
+     */
     @NonNull
     public static String encode(@NonNull WorldSnapshot snapshot) {
         StringBuilder builder = new StringBuilder(snapshot.cells().size() * 48);
@@ -49,6 +55,9 @@ public final class WorldSnapshotJsonCodec {
         return builder.toString();
     }
 
+    /**
+     * Restores a world snapshot from its serialized storage form.
+     */
     @NonNull
     public static WorldSnapshot decode(@NonNull String encodedSnapshot) {
         String[] lines = encodedSnapshot.split("\n");

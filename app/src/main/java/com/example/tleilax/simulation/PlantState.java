@@ -5,6 +5,9 @@ import androidx.annotation.Nullable;
 
 import java.util.Random;
 
+/**
+ * Mutable runtime state for plants stored in the tile plant layer.
+ */
 public class PlantState {
 
     private static final int DEFAULT_BERRY_BUSH_DURABILITY = 4;
@@ -37,6 +40,9 @@ public class PlantState {
         this.plantType = plantType;
     }
 
+    /**
+     * Creates a default living berry bush state.
+     */
     @NonNull
     public static PlantState createBerryBush() {
         PlantState plantState = new PlantState(PlantType.BERRY_BUSH);
@@ -50,6 +56,9 @@ public class PlantState {
         return plantState;
     }
 
+    /**
+     * Creates a berry bush with a randomized remaining lifetime for world generation.
+     */
     @NonNull
     public static PlantState createBerryBushWithRandomizedLifecycle(@NonNull Random random) {
         PlantState plantState = createBerryBush();
@@ -58,6 +67,9 @@ public class PlantState {
         return plantState;
     }
 
+    /**
+     * Creates a new tree starting from its normal sapling stage.
+     */
     @NonNull
     public static PlantState createTree(@NonNull TreeVariant treeVariant) {
         PlantState plantState = new PlantState(PlantType.TREE);
@@ -69,6 +81,9 @@ public class PlantState {
         return plantState;
     }
 
+    /**
+     * Creates a tree with randomized stage timing to avoid synchronized aging.
+     */
     @NonNull
     public static PlantState createTreeWithRandomizedLifecycle(
             @NonNull TreeVariant treeVariant,
@@ -88,6 +103,9 @@ public class PlantState {
         return plantState;
     }
 
+    /**
+     * Restores a berry bush from persisted snapshot data.
+     */
     @NonNull
     public static PlantState restoreBerryBush(
             int durability,
@@ -112,6 +130,9 @@ public class PlantState {
         return plantState;
     }
 
+    /**
+     * Restores a tree from persisted snapshot data.
+     */
     @NonNull
     public static PlantState restoreTree(
             @NonNull TreeVariant treeVariant,
@@ -205,6 +226,9 @@ public class PlantState {
         return false;
     }
 
+    /**
+     * Applies damage to the plant and handles berry-bush death when durability reaches zero.
+     */
     public void damage(int amount) {
         durability = Math.max(0, durability - amount);
         if (durability == 0 && plantType == PlantType.BERRY_BUSH) {
@@ -214,6 +238,9 @@ public class PlantState {
         }
     }
 
+    /**
+     * Consumes one berry from the bush and restarts its regrow timer.
+     */
     public void harvestBerry() {
         if (berryAmount > 0) {
             berryAmount--;
@@ -221,6 +248,9 @@ public class PlantState {
         }
     }
 
+    /**
+     * Advances plant lifecycle state by one simulation tick.
+     */
     public void advanceTick() {
         if (plantType == PlantType.BERRY_BUSH) {
             advanceBerryBushTick();
@@ -229,6 +259,9 @@ public class PlantState {
         advanceTreeTick();
     }
 
+    /**
+     * Returns whether the plant has finished its dead-state decay and can be removed.
+     */
     public boolean isReadyToClear() {
         return plantType == PlantType.BERRY_BUSH
                 ? dead && lifecycleTicksRemaining == 0

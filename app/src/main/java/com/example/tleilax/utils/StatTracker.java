@@ -8,11 +8,17 @@ import com.example.tleilax.simulation.WorldSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Collects per-tick statistics snapshots from the simulation engine.
+ */
 public class StatTracker implements SimulationEngine.Listener {
 
     private static final StatTracker INSTANCE = new StatTracker();
     private static final int MAX_HISTORY_SIZE = 500;
 
+    /**
+     * Returns the shared tracker instance used by the application.
+     */
     public static StatTracker getInstance() {
         return INSTANCE;
     }
@@ -22,10 +28,16 @@ public class StatTracker implements SimulationEngine.Listener {
     private StatTracker() {
     }
 
+    /**
+     * Starts receiving world updates from the given engine.
+     */
     public synchronized void startTracking(@NonNull SimulationEngine engine) {
         engine.addListener(this);
     }
 
+    /**
+     * Stops receiving world updates from the given engine.
+     */
     public synchronized void stopTracking(@NonNull SimulationEngine engine) {
         engine.removeListener(this);
     }
@@ -53,10 +65,16 @@ public class StatTracker implements SimulationEngine.Listener {
         }
     }
 
+    /**
+     * Returns a defensive copy of the recorded statistics history.
+     */
     public synchronized List<StatisticsSnapshot> getHistory() {
         return new ArrayList<>(history);
     }
 
+    /**
+     * Removes all recorded statistics snapshots.
+     */
     public synchronized void clear() {
         history.clear();
     }

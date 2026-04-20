@@ -144,6 +144,7 @@ AI assistance was used during development for:
 
 - debugging issues encountered during implementation,
 - code review support and refactoring checks,
-- searching technical information and alternatives (for example evaluating and replacing AnyChart with MPAndroidChart).
+- searching technical information and alternatives (for example evaluating and replacing AnyChart with MPAndroidChart),
+- helping draft and refine project documentation.
 
 Final implementation decisions, code integration, and acceptance of changes were performed by the project team.
