@@ -113,3 +113,4 @@ This page records the design decisions agreed while implementation was already u
 
 - The layered tile model is treated as the stable architecture.
 - Animal decision-making stays intentionally minimal until teammate work lands.
+- Mutation mechanics were explicitly de-scoped before final submission and tracked as a closed de-scope issue.
