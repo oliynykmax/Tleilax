@@ -33,6 +33,7 @@ import java.util.Random;
 public class SimulationFragment extends Fragment implements SimulationEngine.Listener, AppSettings.Listener {
     private static final long MIN_LOADING_DURATION_MS = 3000L;
     private static final long LOADING_PROGRESS_INTERVAL_MS = 90L;
+    private static final float BUTTON_ZOOM_STEP = 1.2f;
     private static final Random LOADING_STATUS_RANDOM = new Random();
 
     private FragmentSimulationBinding binding;
@@ -66,6 +67,7 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
 
         setupPlayPause();
         setupSpeedControl();
+        setupZoomControls();
         setupSpeciesSelection();
         setupEventControls();
         applySpeciesButtonIcons();
@@ -117,6 +119,11 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
             }
             SimulationSession.getEngine().setSpeedMultiplier(speedMultiplier);
         });
+    }
+
+    private void setupZoomControls() {
+        binding.btnZoomIn.setOnClickListener(v -> binding.simulationCanvas.zoomByFactor(BUTTON_ZOOM_STEP));
+        binding.btnZoomOut.setOnClickListener(v -> binding.simulationCanvas.zoomByFactor(1f / BUTTON_ZOOM_STEP));
     }
 
     private void setupSpeciesSelection() {

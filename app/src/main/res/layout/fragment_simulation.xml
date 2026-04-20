@@ -193,14 +193,15 @@
         android:id="@+id/canvas_frame"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="20dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/canvas_border"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintBottom_toTopOf="@id/controls_bar"
+        app:layout_constraintBottom_toTopOf="@id/zoom_controls_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/event_controls_group"
-        app:layout_constraintVertical_bias="0.5">
+        app:layout_constraintTop_toBottomOf="@id/event_controls_group">
 
         <com.example.tleilax.ui.view.SimulationCanvasView
             android:id="@+id/simulation_canvas"
@@ -264,6 +265,42 @@
             </LinearLayout>
         </FrameLayout>
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/zoom_controls_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/controls_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_zoom_out"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="44dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/simulation_zoom_out"
+            android:text="-"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_zoom_in"
+            style="@style/Widget.Tleilax.Button.Square"
+            android:layout_width="44dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/simulation_zoom_in"
+            android:text="+"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <!-- Controls -->
     <LinearLayout

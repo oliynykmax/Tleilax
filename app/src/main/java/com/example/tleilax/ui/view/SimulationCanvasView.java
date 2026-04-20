@@ -111,6 +111,31 @@ public class SimulationCanvasView extends View {
         invalidate();
     }
 
+    /**
+     * Applies button-driven zoom while keeping the current viewport center stable.
+     */
+    public void zoomByFactor(float factor) {
+        if (worldSnapshot == null || getWidth() == 0 || getHeight() == 0 || factor <= 0f) {
+            return;
+        }
+        float previousScale = scaleFactor;
+        float minScale = worldSnapshot.width() / (float) MIN_VISIBLE_CELLS;
+        float maxScale = worldSnapshot.width() / (float) MAX_VISIBLE_CELLS;
+        scaleFactor = clamp(scaleFactor * factor, minScale, maxScale);
+        if (previousScale == scaleFactor) {
+            return;
+        }
+        float focusX = getWidth() / 2f;
+        float focusY = getHeight() / 2f;
+        float focusRatioX = focusX - offsetX;
+        float focusRatioY = focusY - offsetY;
+        float scaleChange = scaleFactor / previousScale;
+        offsetX = focusX - focusRatioX * scaleChange;
+        offsetY = focusY - focusRatioY * scaleChange;
+        clampOffsets();
+        invalidate();
+    }
+
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);

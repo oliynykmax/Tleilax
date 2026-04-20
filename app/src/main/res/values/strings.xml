@@ -55,6 +55,8 @@
     <string name="loading_title">Growing the world</string>
     <string name="simulation_event_disaster">Disaster</string>
     <string name="simulation_event_frenzy">Frenzy</string>
+    <string name="simulation_zoom_in">Zoom in</string>
+    <string name="simulation_zoom_out">Zoom out</string>
     <string-array name="loading_status_lines">
         <item>Dunewrangling…</item>
         <item>Sandstitching…</item>
