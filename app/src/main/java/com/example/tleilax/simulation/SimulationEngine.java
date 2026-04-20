@@ -117,7 +117,7 @@ public class SimulationEngine {
     }
 
     public void reset(int width, int height) {
-        pause();
+        SimulationSession.setPlaying(false);
         grid = new Grid(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
         tickCount = 0;
         activeEventZones.clear();
@@ -137,7 +137,7 @@ public class SimulationEngine {
     }
 
     public void loadSnapshot(@NonNull WorldSnapshot snapshot) {
-        pause();
+        SimulationSession.setPlaying(false);
         grid = Grid.fromSnapshot(snapshot);
         tickCount = snapshot.tickCount();
         activeEventZones.clear();
@@ -218,18 +218,12 @@ public class SimulationEngine {
             throw new IllegalStateException("World is not initialized.");
         }
         List<WorldSnapshot.CellSnapshot> cells = new ArrayList<>();
-        for (int y = 0; y < grid.getHeight(); y++) {
-            for (int x = 0; x < grid.getWidth(); x++) {
-                Tile tile = grid.getTile(x, y);
-                if (tile == null) {
-                    continue;
-                }
-                WorldSnapshot.CellSnapshot cellSnapshot = createCellSnapshot(x, y, tile);
-                if (cellSnapshot != null) {
-                    cells.add(cellSnapshot);
-                }
+        grid.forEachTile((x, y, tile) -> {
+            WorldSnapshot.CellSnapshot cellSnapshot = createCellSnapshot(x, y, tile);
+            if (cellSnapshot != null) {
+                cells.add(cellSnapshot);
             }
-        }
+        });
         return new WorldSnapshot(grid.getWidth(), grid.getHeight(), tickCount, TerrainType.SAND, cells);
     }
 

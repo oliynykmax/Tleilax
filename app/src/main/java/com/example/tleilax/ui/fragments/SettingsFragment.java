@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -175,30 +173,13 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
     private void showResetEverythingDialog() {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_settings_reset_everything, null, false);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.getWindow().setDimAmount(0.08f);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-        }
+        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);
         dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_dialog_confirm).setOnClickListener(v -> {
             runFullReset();
             dialog.dismiss();
         });
-        dialog.show();
-        if (dialog.getWindow() != null) {
-            int bottomOffset = (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    28,
-                    requireContext().getResources().getDisplayMetrics()
-            );
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-            dialog.getWindow().getAttributes().y = bottomOffset;
-        }
+        DialogStyler.showBottomDialog(requireContext(), dialog);
     }
 
     private void runFullReset() {

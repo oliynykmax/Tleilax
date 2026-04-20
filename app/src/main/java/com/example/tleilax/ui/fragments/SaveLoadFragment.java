@@ -3,12 +3,10 @@ package com.example.tleilax.ui.fragments;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,14 +132,7 @@ public class SaveLoadFragment extends Fragment {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_save_world, null, false);
         TextInputLayout inputLayout = dialogView.findViewById(R.id.input_save_name_layout);
         TextInputEditText inputSaveName = dialogView.findViewById(R.id.input_save_name);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            dialog.getWindow().setDimAmount(0.08f);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-        }
+        AlertDialog dialog = DialogStyler.createBottomDialog(requireContext(), dialogView);
 
         dialogView.findViewById(R.id.btn_dialog_cancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btn_dialog_confirm).setOnClickListener(v -> {
@@ -160,18 +151,8 @@ public class SaveLoadFragment extends Fragment {
             dialog.dismiss();
         });
 
-        dialog.show();
+        DialogStyler.showBottomDialog(requireContext(), dialog);
         inputSaveName.requestFocus();
-        if (dialog.getWindow() != null) {
-            int bottomOffset = (int) TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    28,
-                    requireContext().getResources().getDisplayMetrics()
-            );
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-            dialog.getWindow().getAttributes().y = bottomOffset;
-        }
     }
 
     private void saveCurrentWorld(@NonNull String requestedName) {
