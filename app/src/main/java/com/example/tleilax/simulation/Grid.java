@@ -64,6 +64,7 @@ public class Grid {
                         animal.energy(),
                         animal.health()
                 );
+                restoredAnimal.setPrecisePosition(animal.preciseX(), animal.preciseY());
                 tile.setAnimal(restoredAnimal);
             }
         }
@@ -127,6 +128,37 @@ public class Grid {
         origin.setAnimal(null);
         entity.setX(newX);
         entity.setY(newY);
+        destination.setAnimal(entity);
+        trampleBerryBushIfNeeded(entity, destination);
+        return true;
+    }
+
+    public boolean moveAnimalPrecise(@NonNull Entity entity, float newPreciseX, float newPreciseY) {
+        float clampedX = clampToWorld(newPreciseX, width);
+        float clampedY = clampToWorld(newPreciseY, height);
+
+        int oldCellX = entity.getX();
+        int oldCellY = entity.getY();
+        int newCellX = (int) Math.floor(clampedX);
+        int newCellY = (int) Math.floor(clampedY);
+
+        Tile origin = getTile(oldCellX, oldCellY);
+        Tile destination = getTile(newCellX, newCellY);
+        if (origin == null || destination == null || origin.getAnimal() != entity) {
+            return false;
+        }
+
+        if (oldCellX == newCellX && oldCellY == newCellY) {
+            entity.setPrecisePosition(clampedX, clampedY);
+            return true;
+        }
+
+        if (destination.getAnimal() != null || !canAnimalOccupy(entity, newCellX, newCellY)) {
+            return false;
+        }
+
+        origin.setAnimal(null);
+        entity.setPrecisePosition(clampedX, clampedY);
         destination.setAnimal(entity);
         trampleBerryBushIfNeeded(entity, destination);
         return true;
@@ -281,6 +313,12 @@ public class Grid {
         if (isInBounds(x, y)) {
             positions.add(new Position(x, y));
         }
+    }
+
+    private float clampToWorld(float value, int size) {
+        float min = 0.001f;
+        float max = size - 0.001f;
+        return Math.max(min, Math.min(max, value));
     }
 
     public record Position(int x, int y) {

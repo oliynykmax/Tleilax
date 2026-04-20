@@ -156,10 +156,10 @@ public class SimulationFragment extends Fragment implements SimulationEngine.Lis
     }
 
     private void applySpeciesButtonIcons() {
-        setPixelIcon(binding.btnWolf, R.drawable.animal_wolf, 32);
-        setPixelIcon(binding.btnRabbit, R.drawable.animal_rabbit, 30);
-        setPixelIcon(binding.btnMouse, R.drawable.animal_mouse, 30);
-        setPixelIcon(binding.btnDeer, R.drawable.animal_deer, 30);
+        setPixelIcon(binding.btnWolf, R.drawable.animal_wolf, 28);
+        setPixelIcon(binding.btnRabbit, R.drawable.animal_rabbit, 28);
+        setPixelIcon(binding.btnMouse, R.drawable.animal_mouse, 28);
+        setPixelIcon(binding.btnDeer, R.drawable.animal_deer, 28);
         setPixelIcon(binding.btnGrass, R.drawable.ground_grass, 28);
         setPixelIcon(binding.btnBerryBush, R.drawable.plant_bush_alive, 28);
         setPixelIcon(binding.btnTree, R.drawable.plant_tree_low_alive, 28);

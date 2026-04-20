@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 
 public abstract class Entity {
 
-    private int x;
-    private int y;
+    private float preciseX;
+    private float preciseY;
     private int energy;
     private int health;
     @NonNull
@@ -14,8 +14,8 @@ public abstract class Entity {
     private final int reproductionThreshold;
 
     protected Entity(int x, int y, @NonNull EntityType type) {
-        this.x = x;
-        this.y = y;
+        this.preciseX = toCenterCoordinate(x);
+        this.preciseY = toCenterCoordinate(y);
         this.type = type;
         this.maxEnergy = type.getMaxEnergy();
         this.reproductionThreshold = type.getReproductionThreshold();
@@ -46,19 +46,32 @@ public abstract class Entity {
     }
 
     public int getX() {
-        return x;
+        return (int) Math.floor(preciseX);
     }
 
     public void setX(int x) {
-        this.x = x;
+        this.preciseX = toCenterCoordinate(x);
     }
 
     public int getY() {
-        return y;
+        return (int) Math.floor(preciseY);
     }
 
     public void setY(int y) {
-        this.y = y;
+        this.preciseY = toCenterCoordinate(y);
+    }
+
+    public float getPreciseX() {
+        return preciseX;
+    }
+
+    public float getPreciseY() {
+        return preciseY;
+    }
+
+    public void setPrecisePosition(float preciseX, float preciseY) {
+        this.preciseX = preciseX;
+        this.preciseY = preciseY;
     }
 
     public int getEnergy() {
@@ -124,5 +137,9 @@ public abstract class Entity {
     @NonNull
     public Entity spawnOffspring(int x, int y) {
         return create(type, x, y);
+    }
+
+    private static float toCenterCoordinate(int tileCoordinate) {
+        return tileCoordinate + 0.5f;
     }
 }

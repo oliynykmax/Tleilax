@@ -14,7 +14,8 @@ import java.util.List;
 
 public final class WorldSnapshotJsonCodec {
 
-    private static final String HEADER_PREFIX = "TLEILAX_SNAPSHOT_V1";
+    private static final String HEADER_PREFIX = "TLEILAX_SNAPSHOT_V2";
+    private static final String HEADER_PREFIX_V1 = "TLEILAX_SNAPSHOT_V1";
     private static final int NULL_ENUM = -1;
 
     private WorldSnapshotJsonCodec() {
@@ -56,7 +57,8 @@ public final class WorldSnapshotJsonCodec {
         }
 
         String[] header = lines[0].split("\\|");
-        if (header.length < 5 || !HEADER_PREFIX.equals(header[0])) {
+        boolean version2 = HEADER_PREFIX.equals(header[0]);
+        if (header.length < 5 || (!version2 && !HEADER_PREFIX_V1.equals(header[0]))) {
             throw new IllegalStateException("Unsupported snapshot format.");
         }
 
@@ -80,7 +82,7 @@ public final class WorldSnapshotJsonCodec {
                     TerrainType.values()[Integer.parseInt(parts[2])],
                     Integer.parseInt(parts[3]),
                     decodePlant(parts[4]),
-                    decodeAnimal(parts[5])
+                    decodeAnimal(parts[5], Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), version2)
             ));
         }
 
@@ -110,7 +112,9 @@ public final class WorldSnapshotJsonCodec {
         }
         builder.append(animalSnapshot.type().ordinal()).append(',')
                 .append(animalSnapshot.energy()).append(',')
-                .append(animalSnapshot.health());
+                .append(animalSnapshot.health()).append(',')
+                .append(animalSnapshot.preciseX()).append(',')
+                .append(animalSnapshot.preciseY());
     }
 
     private static WorldSnapshot.PlantSnapshot decodePlant(@NonNull String encodedPlant) {
@@ -133,7 +137,12 @@ public final class WorldSnapshotJsonCodec {
         );
     }
 
-    private static WorldSnapshot.AnimalSnapshot decodeAnimal(@NonNull String encodedAnimal) {
+    private static WorldSnapshot.AnimalSnapshot decodeAnimal(
+            @NonNull String encodedAnimal,
+            int cellX,
+            int cellY,
+            boolean version2
+    ) {
         if ("~".equals(encodedAnimal)) {
             return null;
         }
@@ -141,7 +150,9 @@ public final class WorldSnapshotJsonCodec {
         return new WorldSnapshot.AnimalSnapshot(
                 EntityType.values()[Integer.parseInt(values[0])],
                 Integer.parseInt(values[1]),
-                Integer.parseInt(values[2])
+                Integer.parseInt(values[2]),
+                version2 && values.length > 3 ? Float.parseFloat(values[3]) : cellX + 0.5f,
+                version2 && values.length > 4 ? Float.parseFloat(values[4]) : cellY + 0.5f
         );
     }
 }
