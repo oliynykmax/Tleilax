@@ -1,0 +1,50 @@
+@startuml
+title View Architecture
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #0F172A
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #E2E8F0
+skinparam ClassAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype polyline
+left to right direction
+
+class MainActivity <<Activity>> {
+  +bottomNav
+  +fragmentContainer
+  +onCreate(savedInstanceState)
+  +switchFragment(target)
+}
+
+class SimulationFragment <<Fragment>> {
+  +speciesPickerRow
+  +canvas
+  +onTap(x, y)
+  +onPinchZoom(scale)
+}
+
+class StatisticsFragment <<Fragment>> {
+  +lineGraph
+  +updateStats(data)
+}
+
+class SaveLoadFragment <<Fragment>> {
+  +recyclerView
+  +saveCurrentState()
+  +loadState(id)
+}
+
+class SettingsFragment <<Fragment>> {
+  +gridSizeSlider
+  +applySettings()
+}
+
+MainActivity *-- SimulationFragment : Nav Item 1
+MainActivity *-- StatisticsFragment : Nav Item 2
+MainActivity *-- SaveLoadFragment : Nav Item 3
+MainActivity *-- SettingsFragment : Nav Item 4
+@enduml

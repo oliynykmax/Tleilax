@@ -49,49 +49,7 @@ and visualized as graphs on a separate screen. Simulations can be saved and relo
 
 ## 3. Species & Inheritance Hierarchy
 
-```mermaid
-graph BT
-    %% Concrete Species
-    Wolf["<b>Wolf</b>"]
-    Rabbit["<b>Rabbit</b>"]
-    Mouse["<b>Mouse</b>"]
-    Deer["<b>Deer</b>"]
-    Grass["<b>Grass</b>"]
-    BerryBush["<b>BerryBush</b>"]
-    Tree["<b>Tree</b>"]
-
-    %% Abstract Classes
-    Entity["«abstract»<br/><b>Entity</b>"]
-    Organism["«abstract»<br/><b>Organism</b>"]
-    Animal["«abstract»<br/><b>Animal</b>"]
-    Predator["«abstract»<br/><b>Predator</b>"]
-    Prey["«abstract»<br/><b>Prey</b>"]
-    Plant["«abstract»<br/><b>Plant</b>"]
-
-    %% Inheritance (Pointing up to parent)
-    Organism --> Entity
-    Animal --> Organism
-    Plant --> Organism
-    
-    Predator --> Animal
-    Prey --> Animal
-    
-    Wolf --> Predator
-    
-    Rabbit --> Prey
-    Mouse --> Prey
-    Deer --> Prey
-    
-    Grass --> Plant
-    BerryBush --> Plant
-    Tree --> Plant
-
-    %% Uniform Styling
-    classDef default fill:none,stroke:#666,stroke-width:2px
-    classDef abstract stroke-dasharray: 5 5
-    
-    class Entity,Organism,Animal,Predator,Prey,Plant abstract
-```
+![Species and inheritance hierarchy](assets/plan/species-hierarchy.png)
 
 **Key behavioral differences per class:**
 
@@ -111,110 +69,7 @@ graph BT
 
 ### Classes and relationships
 
-```mermaid
-classDiagram
-    class Entity {
-        <<abstract>>
-        +int x
-        +int y
-        +int energy
-        +update(Grid grid)*
-        +isAlive() boolean
-    }
-    class Organism {
-        <<abstract>>
-        +int maxEnergy
-        +int reproductionThreshold
-        +reproduce()* Organism
-    }
-    class Animal {
-        <<abstract>>
-        +int speed
-        +int visionRange
-        +move(Grid grid)
-        +eat(Organism target)
-        +findTarget(Grid grid)* Organism
-    }
-    class Predator {
-        <<abstract>>
-        +findTarget(Grid grid) Organism
-    }
-    note for Predator "scans for Prey within visionRange"
-
-    note for Wolf "highest speed and vision, hunts all Prey subtypes"
-
-    class Prey {
-        <<abstract>>
-        +findTarget(Grid grid) Organism
-    }
-    note for Prey "scans for Plant within visionRange, flees Predator"
-
-    class Plant {
-        <<abstract>>
-        +spread(Grid grid)*
-        +reproduce() Organism
-    }
-    note for Plant "reproduce() calls spread"
-
-    note for Grass "spreads fast, low energy yield"
-    note for BerryBush "spreads slow, high energy yield"
-    note for Tree "does not spread, blocks animal movement"
-
-    Entity <|-- Organism
-    Organism <|-- Animal
-    Animal <|-- Predator
-    Predator <|-- Wolf
-    Animal <|-- Prey
-    Prey <|-- Rabbit
-    Prey <|-- Mouse
-    Prey <|-- Deer
-    Organism <|-- Plant
-    Plant <|-- Grass
-    Plant <|-- BerryBush
-    Plant <|-- Tree
-
-    class Grid {
-        +Entity[][] cells
-        +int width
-        +int height
-        +getNeighbours(int x, int y) List~Entity~
-        +place(Entity e)
-        +remove(Entity e)
-        +tick()
-    }
-    class SimulationEngine {
-        +Grid grid
-        +int tickCount
-        +SimulationState state
-        +start()
-        +pause()
-        +setSpeed(int speed)
-        +tick()
-        +getStats() Map~String, Integer~
-    }
-    class StatTracker {
-        +Map~String, List_Integer~ populationHistory
-        +record(Map~String, Integer~ snapshot)
-        +getHistory() Map~String, List_Integer~
-    }
-    class Storage {
-        <<Room-based>>
-        +save(SimulationState state)
-        +load(int id) SimulationState
-        +listSaves() List~SimulationSummary~
-    }
-    class SimulationState {
-        +List~Entity~ entities
-        +int gridWidth
-        +int gridHeight
-        +int tickCount
-        +long timestamp
-    }
-
-    SimulationEngine o-- Grid
-    SimulationEngine o-- SimulationState
-    Grid o-- Entity
-```
+![Preliminary UML class diagram](assets/plan/preliminary-class-diagram.png)
 
 ---
 
@@ -222,80 +77,11 @@ classDiagram
 
 ### 5.1 View Architecture
 
-```mermaid
-classDiagram
-    class MainActivity {
-        <<Activity>>
-        +BottomNavigationView bottomNav
-        +FragmentContainerView fragmentContainer
-        +onCreate(Bundle savedInstanceState)
-        +switchFragment(Fragment target)
-    }
-    class SimulationFragment {
-        <<Fragment>>
-        +SpeciesPickerRow picker
-        +SurfaceView canvas
-        +onTap(float x, float y)
-        +onPinchZoom(float scale)
-    }
-    class StatisticsFragment {
-        <<Fragment>>
-        +AnyChartView lineGraph
-        +updateStats(Map data)
-    }
-    class SaveLoadFragment {
-        <<Fragment>>
-        +RecyclerView list
-        +saveCurrentState()
-        +loadState(int id)
-    }
-    class SettingsFragment {
-        <<Fragment>>
-        +Slider gridSize
-        +applySettings()
-    }
-
-    MainActivity *-- SimulationFragment : Nav Item 1
-    MainActivity *-- StatisticsFragment : Nav Item 2
-    MainActivity *-- SaveLoadFragment : Nav Item 3
-    MainActivity *-- SettingsFragment : Nav Item 4
-```
+![View architecture](assets/plan/view-architecture.png)
 
 ### 5.2 Visual Wireframes
 
-```mermaid
-graph TD
-    subgraph "Screen 1: Simulation"
-        direction TB
-        S1_H[Species Picker: 🐺 🐰 🐭 🌲]
-        S1_C[Canvas: 2D Ecosystem Grid]
-        S1_B[Controls: ⏸️  ⏪ ⏩ 🔄]
-        S1_H --- S1_C --- S1_B
-    end
-
-    subgraph "Screen 2: Statistics"
-        direction TB
-        S2_G["AnyChart Line Graph<br/>(Population vs Time)"]
-        S2_S["Summary: Ticks: 452 | Status: Stable"]
-        S2_G --- S2_S
-    end
-
-    subgraph "Screen 3: Save / Load"
-        direction TB
-        S3_B[Button: Save Current Simulation]
-        S3_L["RecyclerView:<br/>- Forest_World_1 (2026-03-29)<br/>- Desert_Test (2026-03-28)<br/>- Empty_Grid (2026-03-25)"]
-        S3_B --- S3_L
-    end
-
-    subgraph "Screen 4: Settings"
-        direction TB
-        S4_G[Slider: Grid Size 10x10 - 40x40]
-        S4_S[Selector: Default Speed]
-        S4_P[Sliders: Initial Population per Species]
-        S4_R[Button: Reset to Defaults]
-        S4_G --- S4_S --- S4_P --- S4_R
-    end
-```
+![Visual wireframes](assets/plan/visual-wireframes.png)
 
 The app uses a single `MainActivity` hosting a `FragmentContainerView`. Navigation is
 handled via a bottom navigation bar with four destinations.

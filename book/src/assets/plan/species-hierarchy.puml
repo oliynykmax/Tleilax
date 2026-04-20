@@ -1,0 +1,45 @@
+@startuml
+title Species And Inheritance Hierarchy
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #0F172A
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #E2E8F0
+skinparam ClassAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype polyline
+left to right direction
+hide empty methods
+hide empty fields
+
+abstract class Entity
+abstract class Organism
+abstract class Animal
+abstract class Predator
+abstract class Prey
+abstract class Plant
+
+class Wolf
+class Rabbit
+class Mouse
+class Deer
+class Grass
+class BerryBush
+class Tree
+
+Entity <|-- Organism
+Organism <|-- Animal
+Organism <|-- Plant
+Animal <|-- Predator
+Animal <|-- Prey
+Predator <|-- Wolf
+Prey <|-- Rabbit
+Prey <|-- Mouse
+Prey <|-- Deer
+Plant <|-- Grass
+Plant <|-- BerryBush
+Plant <|-- Tree
+@enduml

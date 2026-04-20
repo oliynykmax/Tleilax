@@ -30,3 +30,7 @@ local.properties
 hs_err_pid*
 replay_pid*
 book/book
+book/src/assets/plan/*.png
+book/src/assets/plan/*.svg
+book/src/assets/uml/*.png
+book/src/assets/uml/*.svg
