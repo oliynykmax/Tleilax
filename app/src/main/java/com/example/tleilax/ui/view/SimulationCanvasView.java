@@ -94,6 +94,9 @@ public class SimulationCanvasView extends View {
         invalidate();
     }
 
+    /**
+     * Updates active event overlays rendered on top of the simulation world.
+     */
     public void setActiveEventZones(@NonNull List<ActiveEventZone> activeEventZones) {
         this.activeEventZones = new ArrayList<>(activeEventZones);
         invalidate();
