@@ -19,14 +19,20 @@ public class WorldGenerator {
     public void seedWorld(
             @NonNull Grid grid,
             @NonNull Random random,
-            int grassCoveragePercent
+            int grassCoveragePercent,
+            int wolfCount,
+            int rabbitCount,
+            int mouseCount,
+            int deerCount,
+            int berryBushCount,
+            int treeCount
     ) {
         seedGrassPatches(grid, random, grassCoveragePercent);
-        seedPlantsNearGrass(grid, random);
-        addRandomAnimals(grid, EntityType.WOLF, 3, random);
-        addRandomAnimals(grid, EntityType.RABBIT, 12, random);
-        addRandomAnimals(grid, EntityType.MOUSE, 10, random);
-        addRandomAnimals(grid, EntityType.DEER, 6, random);
+        seedPlantsNearGrass(grid, random, berryBushCount, treeCount);
+        addRandomAnimals(grid, EntityType.WOLF, wolfCount, random);
+        addRandomAnimals(grid, EntityType.RABBIT, rabbitCount, random);
+        addRandomAnimals(grid, EntityType.MOUSE, mouseCount, random);
+        addRandomAnimals(grid, EntityType.DEER, deerCount, random);
     }
 
     private void seedGrassPatches(@NonNull Grid grid, @NonNull Random random, int targetCoveragePercent) {
@@ -139,15 +145,21 @@ public class WorldGenerator {
         return count;
     }
 
-    private void seedPlantsNearGrass(@NonNull Grid grid, @NonNull Random random) {
+    private void seedPlantsNearGrass(
+            @NonNull Grid grid,
+            @NonNull Random random,
+            int berryBushCount,
+            int treeCount
+    ) {
         int width = grid.getWidth();
         int height = grid.getHeight();
-        int berryBushes = Math.max(6, width / 3);
-        int trees = Math.max(8, width / 2);
+        int berryBushes = Math.max(0, berryBushCount);
+        int trees = Math.max(0, treeCount);
         int attempts = 0;
+        int maxAttempts = Math.max(800, (berryBushes + trees) * 24);
 
         // Try to place plants on grass edges up to a maximum number of attempts
-        while ((berryBushes > 0 || trees > 0) && attempts < 800) {
+        while ((berryBushes > 0 || trees > 0) && attempts < maxAttempts) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             Tile tile = grid.getTile(x, y);

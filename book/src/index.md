@@ -24,7 +24,7 @@ and visualized as graphs on a separate screen. Simulations can be saved and relo
 - Real-time tick-based simulation on a 2D grid
 - Three species categories: Predator, Prey, Plant — up to 7 species total
 - Per-entity behavior: movement, feeding, reproduction, energy/death
-- Pre-simulation configuration (species counts, grid size)
+- Pre-simulation configuration (starting species and plant counts; world size fixed at `256x256`)
 - Tap-to-place entities during a live simulation
 - Simulation speed control (pause, slow, normal, fast)
 - Pinch-to-pan and pinch-to-zoom on the canvas
