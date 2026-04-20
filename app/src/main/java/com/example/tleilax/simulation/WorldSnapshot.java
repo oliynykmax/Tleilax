@@ -40,7 +40,9 @@ public record WorldSnapshot(
     public record AnimalSnapshot(
             @NonNull EntityType type,
             int energy,
-            int health
+            int health,
+            float preciseX,
+            float preciseY
     ) {
     }
 }

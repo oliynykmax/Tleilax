@@ -137,22 +137,7 @@ public class SimulationCanvasView extends View {
             }
         }
 
-        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
-            float left = offsetX + cell.x() * cellWidth;
-            float top = offsetY + cell.y() * cellHeight;
-            float right = left + cellWidth;
-            float bottom = top + cellHeight;
-            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
-                continue;
-            }
-
-            drawRect.set(left, top, right, bottom);
-
-            if (cell.animal() != null && !shouldDrawAnimalAfterPlants(cell)) {
-                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()),
-                        animalBounds(drawRect, cell.animal().type()));
-            }
-        }
+        drawAnimals(canvas, cellWidth, cellHeight, false);
 
         for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
             float left = offsetX + cell.x() * cellWidth;
@@ -176,22 +161,7 @@ public class SimulationCanvasView extends View {
             }
         }
 
-        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
-            float left = offsetX + cell.x() * cellWidth;
-            float top = offsetY + cell.y() * cellHeight;
-            float right = left + cellWidth;
-            float bottom = top + cellHeight;
-            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
-                continue;
-            }
-
-            drawRect.set(left, top, right, bottom);
-
-            if (cell.animal() != null && shouldDrawAnimalAfterPlants(cell)) {
-                drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()),
-                        animalBounds(drawRect, cell.animal().type()));
-            }
-        }
+        drawAnimals(canvas, cellWidth, cellHeight, true);
 
         if (gridVisible) {
             for (int y = visibleStartY; y <= visibleEndY; y++) {
@@ -216,6 +186,27 @@ public class SimulationCanvasView extends View {
         return cell.animal() != null
                 && cell.plant() != null
                 && cell.plant().plantType() == PlantType.TREE;
+    }
+
+    private void drawAnimals(@NonNull Canvas canvas, float cellWidth, float cellHeight, boolean drawAfterPlants) {
+        if (worldSnapshot == null) {
+            return;
+        }
+        for (WorldSnapshot.CellSnapshot cell : worldSnapshot.cells()) {
+            if (cell.animal() == null || shouldDrawAnimalAfterPlants(cell) != drawAfterPlants) {
+                continue;
+            }
+            float left = offsetX + (cell.animal().preciseX() - 0.5f) * cellWidth;
+            float top = offsetY + (cell.animal().preciseY() - 0.5f) * cellHeight;
+            float right = left + cellWidth;
+            float bottom = top + cellHeight;
+            if (right < 0 || bottom < 0 || left > getWidth() || top > getHeight()) {
+                continue;
+            }
+            drawRect.set(left, top, right, bottom);
+            drawBitmap(canvas, textureLibrary.getAnimalTexture(cell.animal().type()),
+                    animalBounds(drawRect, cell.animal().type()));
+        }
     }
 
     @NonNull

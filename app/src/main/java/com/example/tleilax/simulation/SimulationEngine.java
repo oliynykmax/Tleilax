@@ -185,7 +185,9 @@ public class SimulationEngine {
             animalSnapshot = new WorldSnapshot.AnimalSnapshot(
                     animal.getType(),
                     animal.getEnergy(),
-                    animal.getHealth()
+                    animal.getHealth(),
+                    animal.getPreciseX(),
+                    animal.getPreciseY()
             );
         }
         if (tile.getGrassAmount() == 0 && plantSnapshot == null && animalSnapshot == null) {

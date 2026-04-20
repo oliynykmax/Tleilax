@@ -42,6 +42,8 @@ public class TickLogic {
     private static final int PREDATOR_METABOLISM_COST = 1;
     private static final float MIN_REPRODUCTION_MULTIPLIER = 0.2f;
     private static final float MAX_REPRODUCTION_MULTIPLIER = 2.4f;
+    private static final float MOVEMENT_PER_SPEED_UNIT = 0.25f;
+    private static final float ATTACK_RANGE_SCALE = 16f;
 
     @NonNull
     private static final Map<EntityType, Integer> TARGET_POPULATION_BY_TYPE = createTargetPopulationByType();
@@ -152,7 +154,7 @@ public class TickLogic {
         if (consumeCurrentTileResource(grid, entity)) return;
 
         if (entity.getType().isPredator()) {
-            Entity target = findAdjacentTarget(grid, entity);
+            Entity target = findAttackTarget(grid, entity);
             if (target != null) {
                 attack(grid, entity, target, populationByType);
                 return;
@@ -160,7 +162,7 @@ public class TickLogic {
         }
 
         if (entity.getType().isPredator() && chasePrey(grid, entity)) {
-            Entity target = findAdjacentTarget(grid, entity);
+            Entity target = findAttackTarget(grid, entity);
             if (target != null) {
                 attack(grid, entity, target, populationByType);
             }
@@ -243,17 +245,26 @@ public class TickLogic {
     }
 
     @Nullable
-    private Entity findAdjacentTarget(@NonNull Grid grid, @NonNull Entity entity) {
+    private Entity findAttackTarget(@NonNull Grid grid, @NonNull Entity entity) {
+        float attackRange = getAttackDistance(entity);
         Entity bestCandidate = null;
         int bestPriority = Integer.MIN_VALUE;
-        for (Grid.Position position : shuffled(grid.getAdjacentPositions(entity.getX(), entity.getY()))) {
-            Entity candidate = grid.getAnimal(position.x(), position.y());
-            if (candidate != null && candidate.getType().isPrey()) {
-                int candidatePriority = getPreyPriority(candidate.getType());
-                if (bestCandidate == null || candidatePriority > bestPriority) {
-                    bestCandidate = candidate;
-                    bestPriority = candidatePriority;
-                }
+        float bestDistance = Float.MAX_VALUE;
+        for (Entity candidate : grid.getAnimals()) {
+            if (candidate == entity || !candidate.getType().isPrey() || !candidate.isAlive()) {
+                continue;
+            }
+            float distance = preciseDistance(entity, candidate);
+            if (distance > attackRange) {
+                continue;
+            }
+            int candidatePriority = getPreyPriority(candidate.getType());
+            if (bestCandidate == null
+                    || candidatePriority > bestPriority
+                    || (candidatePriority == bestPriority && distance < bestDistance)) {
+                bestCandidate = candidate;
+                bestPriority = candidatePriority;
+                bestDistance = distance;
             }
         }
         return bestCandidate;
@@ -267,36 +278,36 @@ public class TickLogic {
     @Nullable
     private Entity scanForEntity(@NonNull Grid grid, @NonNull Entity entity,
                                  boolean searchPredator, @Nullable Integer radiusOverride) {
-        int range = radiusOverride != null
+        float range = radiusOverride != null
                 ? radiusOverride
                 : entity instanceof Animal animal ? animal.getVisionRange() : 0;
         if (range <= 0) return null;
 
         Entity closest = null;
-        int minDist = Integer.MAX_VALUE;
+        float minDist = Float.MAX_VALUE;
 
-        for (int dy = -range; dy <= range; dy++) {
-            for (int dx = -range; dx <= range; dx++) {
-                if (dx == 0 && dy == 0) continue;
-                int nx = entity.getX() + dx;
-                int ny = entity.getY() + dy;
-                Entity candidate = grid.getAnimal(nx, ny);
-                if (candidate == null || !candidate.isAlive()) continue;
+        for (Entity candidate : grid.getAnimals()) {
+            if (candidate == entity || !candidate.isAlive()) {
+                continue;
+            }
+            boolean match = searchPredator
+                    ? candidate.getType().isPredator()
+                    : candidate.getType().isPrey();
+            if (!match) {
+                continue;
+            }
 
-                boolean match = searchPredator
-                        ? candidate.getType().isPredator()
-                        : candidate.getType().isPrey();
-                if (!match) continue;
-
-                int dist = Math.max(Math.abs(dx), Math.abs(dy));
-                if (dist < minDist
-                        || (!searchPredator
-                        && dist == minDist
-                        && closest != null
-                        && getPreyPriority(candidate.getType()) > getPreyPriority(closest.getType()))) {
-                    minDist = dist;
-                    closest = candidate;
-                }
+            float dist = preciseDistance(entity, candidate);
+            if (dist > range) {
+                continue;
+            }
+            if (dist < minDist
+                    || (!searchPredator
+                    && Math.abs(dist - minDist) < 0.0001f
+                    && closest != null
+                    && getPreyPriority(candidate.getType()) > getPreyPriority(closest.getType()))) {
+                minDist = dist;
+                closest = candidate;
             }
         }
         return closest;
@@ -331,43 +342,68 @@ public class TickLogic {
      */
     private boolean moveDirected(@NonNull Grid grid, @NonNull Entity entity,
                                  @NonNull Entity target, boolean flee) {
-        int steps = Math.max(1, entity instanceof Animal animal ? animal.getSpeed() : 1);
-        boolean moved = false;
-
-        for (int i = 0; i < steps; i++) {
-            List<Grid.Position> candidates =
-                    grid.getAdjacentEmptyPositions(entity.getX(), entity.getY(), entity);
-            if (candidates.isEmpty()) break;
-
-            candidates.sort((a, b) -> {
-                int distA = Math.max(Math.abs(a.x() - target.getX()), Math.abs(a.y() - target.getY()));
-                int distB = Math.max(Math.abs(b.x() - target.getX()), Math.abs(b.y() - target.getY()));
-                return flee ? Integer.compare(distB, distA) : Integer.compare(distA, distB);
-            });
-
-            boolean stepped = false;
-            for (Grid.Position pos : candidates) {
-                if (grid.moveAnimal(entity, pos.x(), pos.y())) {
-                    moved = true;
-                    stepped = true;
-                    break;
-                }
-            }
-            if (!stepped) break;
+        float dx = target.getPreciseX() - entity.getPreciseX();
+        float dy = target.getPreciseY() - entity.getPreciseY();
+        if (flee) {
+            dx = -dx;
+            dy = -dy;
         }
-        return moved;
+        float length = (float) Math.hypot(dx, dy);
+        if (length < 0.0001f) {
+            return false;
+        }
+        float distance = getMovementDistance(entity);
+        return moveContinuous(grid, entity, (dx / length) * distance, (dy / length) * distance);
     }
 
 
     private void moveRandomly(@NonNull Grid grid, @NonNull Entity entity) {
-        int movementSteps = Math.max(1, entity instanceof Animal animal ? animal.getSpeed() : 1);
-        for (int i = 0; i < movementSteps; i++) {
-            List<Grid.Position> emptyPositions =
-                    shuffled(grid.getAdjacentEmptyPositions(entity.getX(), entity.getY(), entity));
-            if (emptyPositions.isEmpty()) return;
-            Grid.Position destination = emptyPositions.get(0);
-            grid.moveAnimal(entity, destination.x(), destination.y());
+        float angle = random.nextFloat() * (float) (Math.PI * 2.0);
+        float distance = getMovementDistance(entity);
+        moveContinuous(grid, entity,
+                (float) Math.cos(angle) * distance,
+                (float) Math.sin(angle) * distance);
+    }
+
+    private boolean moveContinuous(@NonNull Grid grid, @NonNull Entity entity, float deltaX, float deltaY) {
+        int subSteps = Math.max(1, (int) Math.ceil(Math.max(Math.abs(deltaX), Math.abs(deltaY)) * 4f));
+        float stepX = deltaX / subSteps;
+        float stepY = deltaY / subSteps;
+        boolean moved = false;
+
+        for (int i = 0; i < subSteps; i++) {
+            float nextX = entity.getPreciseX() + stepX;
+            float nextY = entity.getPreciseY() + stepY;
+            if (grid.moveAnimalPrecise(entity, nextX, nextY)) {
+                moved = true;
+                continue;
+            }
+            if (grid.moveAnimalPrecise(entity, nextX, entity.getPreciseY())) {
+                moved = true;
+                continue;
+            }
+            if (grid.moveAnimalPrecise(entity, entity.getPreciseX(), nextY)) {
+                moved = true;
+                continue;
+            }
+            break;
         }
+
+        return moved;
+    }
+
+    private float getMovementDistance(@NonNull Entity entity) {
+        int speed = entity instanceof Animal animal ? animal.getSpeed() : 1;
+        return Math.max(0.20f, speed * MOVEMENT_PER_SPEED_UNIT);
+    }
+
+    private float getAttackDistance(@NonNull Entity entity) {
+        return Math.max(0.75f, entity.getAttackRange() / ATTACK_RANGE_SCALE);
+    }
+
+    private float preciseDistance(@NonNull Entity first, @NonNull Entity second) {
+        return (float) Math.hypot(first.getPreciseX() - second.getPreciseX(),
+                first.getPreciseY() - second.getPreciseY());
     }
 
 
