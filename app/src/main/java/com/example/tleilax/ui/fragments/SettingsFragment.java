@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,7 +24,9 @@ import com.example.tleilax.simulation.SimulationEngine;
 import com.example.tleilax.simulation.SimulationSession;
 import com.example.tleilax.storage.SimulationStorage;
 import com.example.tleilax.utils.AppSettings;
+import com.google.android.material.slider.Slider;
 
+import java.util.function.IntConsumer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,9 +54,8 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
 
         binding.switchMusic.setChecked(musicEnabled);
         binding.switchShowGrid.setChecked(gridVisible);
-        binding.sliderGrassCoverage.setValue(grassCoveragePercent);
         renderMusicHint(musicEnabled);
-        renderGrassCoverage(grassCoveragePercent);
+        syncWorldGenerationControls();
 
         binding.switchMusic.setOnCheckedChangeListener((buttonView, isChecked) -> {
             renderMusicHint(isChecked);
@@ -68,6 +70,18 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
                 AppSettings.setGrassCoveragePercent(requireContext(), percent);
             }
         });
+        bindSpawnCountSlider(binding.sliderWolfCount, binding.textWolfCountValue,
+                AppSettings.getWolfCount(requireContext()), count -> AppSettings.setWolfCount(requireContext(), count));
+        bindSpawnCountSlider(binding.sliderRabbitCount, binding.textRabbitCountValue,
+                AppSettings.getRabbitCount(requireContext()), count -> AppSettings.setRabbitCount(requireContext(), count));
+        bindSpawnCountSlider(binding.sliderMouseCount, binding.textMouseCountValue,
+                AppSettings.getMouseCount(requireContext()), count -> AppSettings.setMouseCount(requireContext(), count));
+        bindSpawnCountSlider(binding.sliderDeerCount, binding.textDeerCountValue,
+                AppSettings.getDeerCount(requireContext()), count -> AppSettings.setDeerCount(requireContext(), count));
+        bindSpawnCountSlider(binding.sliderBerryBushCount, binding.textBerryBushCountValue,
+                AppSettings.getBerryBushCount(requireContext()), count -> AppSettings.setBerryBushCount(requireContext(), count));
+        bindSpawnCountSlider(binding.sliderTreeCount, binding.textTreeCountValue,
+                AppSettings.getTreeCount(requireContext()), count -> AppSettings.setTreeCount(requireContext(), count));
         binding.btnResetEverything.setOnClickListener(v -> showResetEverythingDialog());
 
         AppSettings.addListener(this);
@@ -121,6 +135,43 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
         binding.textGrassCoverageValue.setText(getString(R.string.settings_grass_coverage_value, percent));
     }
 
+    private void bindSpawnCountSlider(
+            @NonNull Slider slider,
+            @NonNull TextView valueView,
+            int initialValue,
+            @NonNull IntConsumer persistAction
+    ) {
+        slider.setValue(initialValue);
+        renderSpawnCount(valueView, initialValue);
+        slider.addOnChangeListener((changedSlider, value, fromUser) -> {
+            int count = Math.round(value);
+            renderSpawnCount(valueView, count);
+            if (fromUser) {
+                persistAction.accept(count);
+            }
+        });
+    }
+
+    private void renderSpawnCount(@NonNull TextView valueView, int count) {
+        valueView.setText(getString(R.string.settings_spawn_count_value, count));
+    }
+
+    private void syncWorldGenerationControls() {
+        if (binding == null) {
+            return;
+        }
+        int grassCoveragePercent = AppSettings.getGrassCoveragePercent(requireContext());
+        binding.sliderGrassCoverage.setValue(grassCoveragePercent);
+        renderGrassCoverage(grassCoveragePercent);
+
+        binding.sliderWolfCount.setValue(AppSettings.getWolfCount(requireContext()));
+        binding.sliderRabbitCount.setValue(AppSettings.getRabbitCount(requireContext()));
+        binding.sliderMouseCount.setValue(AppSettings.getMouseCount(requireContext()));
+        binding.sliderDeerCount.setValue(AppSettings.getDeerCount(requireContext()));
+        binding.sliderBerryBushCount.setValue(AppSettings.getBerryBushCount(requireContext()));
+        binding.sliderTreeCount.setValue(AppSettings.getTreeCount(requireContext()));
+    }
+
     private void showResetEverythingDialog() {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_settings_reset_everything, null, false);
@@ -162,6 +213,7 @@ public class SettingsFragment extends Fragment implements AppSettings.Listener {
                 com.example.tleilax.utils.StatTracker.getInstance().clear();
                 mainHandler.post(() -> {
                     AppSettings.resetToDefaults(appContext);
+                    syncWorldGenerationControls();
                     SimulationSession.getEngine().reset(SimulationEngine.FIXED_WORLD_SIZE, SimulationEngine.FIXED_WORLD_SIZE);
                     SimulationSession.setWorldInitialized(true);
                     if (binding != null) {

@@ -112,7 +112,17 @@ public class SimulationEngine {
         grid = new Grid(FIXED_WORLD_SIZE, FIXED_WORLD_SIZE);
         tickCount = 0;
         WorldGenerator generator = new WorldGenerator();
-        generator.seedWorld(grid, new Random(), AppSettings.getGrassCoveragePercent(TleilaxApp.getAppContext()));
+        generator.seedWorld(
+                grid,
+                new Random(),
+                AppSettings.getGrassCoveragePercent(TleilaxApp.getAppContext()),
+                AppSettings.getWolfCount(TleilaxApp.getAppContext()),
+                AppSettings.getRabbitCount(TleilaxApp.getAppContext()),
+                AppSettings.getMouseCount(TleilaxApp.getAppContext()),
+                AppSettings.getDeerCount(TleilaxApp.getAppContext()),
+                AppSettings.getBerryBushCount(TleilaxApp.getAppContext()),
+                AppSettings.getTreeCount(TleilaxApp.getAppContext())
+        );
         dispatchWorldUpdate();
     }
 

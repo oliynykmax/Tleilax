@@ -163,6 +163,241 @@
                     android:textColor="@color/text_muted"
                     android:fontFamily="sans-serif"
                     android:textSize="12sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_subtle" />
+
+                <TextView
+                    style="@style/TextAppearance.Tleilax.SectionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_starting_population" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_wolves"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_wolf_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_wolf_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="3"
+                    android:valueFrom="0"
+                    android:valueTo="24"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_rabbits"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_rabbit_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_rabbit_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="12"
+                    android:valueFrom="0"
+                    android:valueTo="48"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_mice"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_mouse_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_mouse_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="10"
+                    android:valueFrom="0"
+                    android:valueTo="48"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_deer"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_deer_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_deer_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="6"
+                    android:valueFrom="0"
+                    android:valueTo="24"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_berry_bushes"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_berry_bush_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_berry_bush_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="85"
+                    android:valueFrom="0"
+                    android:valueTo="180"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/settings_trees"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/text_tree_count_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/accent_gold"
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_tree_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:value="128"
+                    android:valueFrom="0"
+                    android:valueTo="220"
+                    app:thumbColor="@color/accent_gold"
+                    app:trackColorActive="@color/accent_gold"
+                    app:trackColorInactive="@color/border_subtle" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
