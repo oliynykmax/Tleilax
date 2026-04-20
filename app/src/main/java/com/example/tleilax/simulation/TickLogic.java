@@ -59,7 +59,7 @@ public class TickLogic {
     }
 
 
-    public void advance(@NonNull Grid grid) {
+    public void advance(@NonNull Grid grid, @NonNull List<ActiveEventZone> activeEventZones) {
         advancePlantLayers(grid);
 
         List<Entity> animals = new ArrayList<>(grid.getAnimals());
@@ -69,7 +69,7 @@ public class TickLogic {
             if (grid.getAnimal(entity.getX(), entity.getY()) != entity) {
                 continue;
             }
-            handleAnimalTurn(grid, entity, populationByType);
+            handleAnimalTurn(grid, entity, populationByType, activeEventZones);
         }
     }
 
@@ -131,7 +131,8 @@ public class TickLogic {
     private void handleAnimalTurn(
             @NonNull Grid grid,
             @NonNull Entity entity,
-            @NonNull Map<EntityType, Integer> populationByType
+            @NonNull Map<EntityType, Integer> populationByType,
+            @NonNull List<ActiveEventZone> activeEventZones
     ) {
         int speed = entity instanceof Animal animal ? animal.getSpeed() : 0;
         int metabolismCost = entity.getType().isPredator()
@@ -149,27 +150,27 @@ public class TickLogic {
             if (reproduce(grid, entity, populationByType)) return;
         }
 
-        if (entity.getType().isPrey() && fleeFromPredator(grid, entity)) return;
+        if (entity.getType().isPrey() && fleeFromPredator(grid, entity, activeEventZones)) return;
 
         if (consumeCurrentTileResource(grid, entity)) return;
 
         if (entity.getType().isPredator()) {
-            Entity target = findAttackTarget(grid, entity);
+            Entity target = findAttackTarget(grid, entity, activeEventZones);
             if (target != null) {
-                attack(grid, entity, target, populationByType);
+                attack(grid, entity, target, populationByType, activeEventZones);
                 return;
             }
         }
 
-        if (entity.getType().isPredator() && chasePrey(grid, entity)) {
-            Entity target = findAttackTarget(grid, entity);
+        if (entity.getType().isPredator() && chasePrey(grid, entity, activeEventZones)) {
+            Entity target = findAttackTarget(grid, entity, activeEventZones);
             if (target != null) {
-                attack(grid, entity, target, populationByType);
+                attack(grid, entity, target, populationByType, activeEventZones);
             }
             return;
         }
 
-        moveRandomly(grid, entity);
+        moveRandomly(grid, entity, activeEventZones);
     }
 
 
@@ -234,9 +235,14 @@ public class TickLogic {
             @NonNull Grid grid,
             @NonNull Entity attacker,
             @NonNull Entity target,
-            @NonNull Map<EntityType, Integer> populationByType
+            @NonNull Map<EntityType, Integer> populationByType,
+            @NonNull List<ActiveEventZone> activeEventZones
     ) {
-        target.changeHealth(-attacker.getAttackPower());
+        int attackPower = attacker.getAttackPower();
+        if (isPredatorFrenzyActiveFor(attacker, activeEventZones)) {
+            attackPower += 8;
+        }
+        target.changeHealth(-attackPower);
         if (!target.isAlive()) {
             attacker.changeEnergy(Math.round(target.getEnergy() * PREDATOR_KILL_ENERGY_RATIO));
             grid.removeAnimal(target);
@@ -245,8 +251,12 @@ public class TickLogic {
     }
 
     @Nullable
-    private Entity findAttackTarget(@NonNull Grid grid, @NonNull Entity entity) {
-        float attackRange = getAttackDistance(entity);
+    private Entity findAttackTarget(
+            @NonNull Grid grid,
+            @NonNull Entity entity,
+            @NonNull List<ActiveEventZone> activeEventZones
+    ) {
+        float attackRange = getAttackDistance(entity, activeEventZones);
         Entity bestCandidate = null;
         int bestPriority = Integer.MIN_VALUE;
         float bestDistance = Float.MAX_VALUE;
@@ -277,10 +287,14 @@ public class TickLogic {
      */
     @Nullable
     private Entity scanForEntity(@NonNull Grid grid, @NonNull Entity entity,
-                                 boolean searchPredator, @Nullable Integer radiusOverride) {
+                                 boolean searchPredator, @Nullable Integer radiusOverride,
+                                 @NonNull List<ActiveEventZone> activeEventZones) {
         float range = radiusOverride != null
                 ? radiusOverride
                 : entity instanceof Animal animal ? animal.getVisionRange() : 0;
+        if (!searchPredator && isPredatorFrenzyActiveFor(entity, activeEventZones)) {
+            range *= 1.8f;
+        }
         if (range <= 0) return null;
 
         Entity closest = null;
@@ -322,16 +336,24 @@ public class TickLogic {
         };
     }
 
-    private boolean fleeFromPredator(@NonNull Grid grid, @NonNull Entity entity) {
-        Entity predator = scanForEntity(grid, entity, true, PREY_FLEE_RADIUS);
+    private boolean fleeFromPredator(
+            @NonNull Grid grid,
+            @NonNull Entity entity,
+            @NonNull List<ActiveEventZone> activeEventZones
+    ) {
+        Entity predator = scanForEntity(grid, entity, true, PREY_FLEE_RADIUS, activeEventZones);
         if (predator == null) return false;
-        return moveDirected(grid, entity, predator, true);
+        return moveDirected(grid, entity, predator, true, activeEventZones);
     }
 
-    private boolean chasePrey(@NonNull Grid grid, @NonNull Entity entity) {
-        Entity prey = scanForEntity(grid, entity, false, null);
+    private boolean chasePrey(
+            @NonNull Grid grid,
+            @NonNull Entity entity,
+            @NonNull List<ActiveEventZone> activeEventZones
+    ) {
+        Entity prey = scanForEntity(grid, entity, false, null, activeEventZones);
         if (prey == null) return false;
-        return moveDirected(grid, entity, prey, false);
+        return moveDirected(grid, entity, prey, false, activeEventZones);
     }
 
     /**
@@ -341,7 +363,8 @@ public class TickLogic {
      * candidate is blocked (e.g. by a tree), falls through to the next-best.
      */
     private boolean moveDirected(@NonNull Grid grid, @NonNull Entity entity,
-                                 @NonNull Entity target, boolean flee) {
+                                 @NonNull Entity target, boolean flee,
+                                 @NonNull List<ActiveEventZone> activeEventZones) {
         float dx = target.getPreciseX() - entity.getPreciseX();
         float dy = target.getPreciseY() - entity.getPreciseY();
         if (flee) {
@@ -352,14 +375,18 @@ public class TickLogic {
         if (length < 0.0001f) {
             return false;
         }
-        float distance = getMovementDistance(entity);
+        float distance = getMovementDistance(entity, activeEventZones);
         return moveContinuous(grid, entity, (dx / length) * distance, (dy / length) * distance);
     }
 
 
-    private void moveRandomly(@NonNull Grid grid, @NonNull Entity entity) {
+    private void moveRandomly(
+            @NonNull Grid grid,
+            @NonNull Entity entity,
+            @NonNull List<ActiveEventZone> activeEventZones
+    ) {
         float angle = random.nextFloat() * (float) (Math.PI * 2.0);
-        float distance = getMovementDistance(entity);
+        float distance = getMovementDistance(entity, activeEventZones);
         moveContinuous(grid, entity,
                 (float) Math.cos(angle) * distance,
                 (float) Math.sin(angle) * distance);
@@ -392,18 +419,47 @@ public class TickLogic {
         return moved;
     }
 
-    private float getMovementDistance(@NonNull Entity entity) {
+    private float getMovementDistance(@NonNull Entity entity, @NonNull List<ActiveEventZone> activeEventZones) {
         int speed = entity instanceof Animal animal ? animal.getSpeed() : 1;
-        return Math.max(0.20f, speed * MOVEMENT_PER_SPEED_UNIT);
+        float distance = Math.max(0.20f, speed * MOVEMENT_PER_SPEED_UNIT);
+        if (isPredatorFrenzyActiveFor(entity, activeEventZones)) {
+            distance *= 1.7f;
+        }
+        return distance;
     }
 
-    private float getAttackDistance(@NonNull Entity entity) {
-        return Math.max(0.75f, entity.getAttackRange() / ATTACK_RANGE_SCALE);
+    private float getAttackDistance(@NonNull Entity entity, @NonNull List<ActiveEventZone> activeEventZones) {
+        float distance = Math.max(0.75f, entity.getAttackRange() / ATTACK_RANGE_SCALE);
+        if (isPredatorFrenzyActiveFor(entity, activeEventZones)) {
+            distance *= 1.6f;
+        }
+        return distance;
     }
 
     private float preciseDistance(@NonNull Entity first, @NonNull Entity second) {
         return (float) Math.hypot(first.getPreciseX() - second.getPreciseX(),
                 first.getPreciseY() - second.getPreciseY());
+    }
+
+    private boolean isPredatorFrenzyActiveFor(
+            @NonNull Entity entity,
+            @NonNull List<ActiveEventZone> activeEventZones
+    ) {
+        if (!entity.getType().isPredator()) {
+            return false;
+        }
+        for (ActiveEventZone activeEventZone : activeEventZones) {
+            if (activeEventZone.eventType() != SimulationEventType.PREDATOR_FRENZY) {
+                continue;
+            }
+            float deltaX = entity.getPreciseX() - activeEventZone.centerX();
+            float deltaY = entity.getPreciseY() - activeEventZone.centerY();
+            if ((deltaX * deltaX) + (deltaY * deltaY)
+                    <= activeEventZone.radiusTiles() * activeEventZone.radiusTiles()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
