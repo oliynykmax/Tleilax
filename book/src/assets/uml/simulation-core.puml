@@ -1,0 +1,92 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam classFontName Helvetica
+skinparam ArrowColor #4B5563
+skinparam ClassBorderColor #1F2937
+skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassHeaderBackgroundColor #E5E7EB
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+top to bottom direction
+
+class SimulationEngine {
+  +initializeWorld()
+  +start()
+  +pause()
+  +tickOnce()
+  +reset(width, height)
+  +triggerDisaster(x, y) : boolean
+  +triggerPredatorFrenzy(x, y) : boolean
+  +getSnapshot() : WorldSnapshot
+}
+
+class TickLogic {
+  +advance(grid, activeEventZones)
+}
+
+class WorldGenerator {
+  +seedWorld(grid, random, ...)
+}
+
+class Grid {
+  +getTile(x, y) : Tile
+  +placeAnimal(entity) : boolean
+  +placeBerryBush(x, y) : boolean
+  +placeTree(x, y, variant) : boolean
+  +removeAnimal(entity)
+}
+
+class Tile {
+  +terrainType : TerrainType
+  +grassAmount : int
+  +plantState : PlantState
+  +animal : Entity
+}
+
+class PlantState {
+  +plantType : PlantType
+  +durability : int
+  +berryAmount : int
+  +treeVariant : TreeVariant
+  +treeLifeStage : TreeLifeStage
+  +advanceTick()
+  +supportsResource(kind) : boolean
+}
+
+class WorldSnapshot <<record>>
+class ActiveEventZone <<record>>
+class SimulationStorage {
+  +save(name, state) : long
+  +load(id) : WorldSnapshot
+  +listSaves() : List
+  +delete(save)
+}
+class SimulationDatabase <<RoomDatabase>>
+class SimulationSaveDao <<DAO>>
+class SimulationSaveEntity <<Room Entity>>
+class WorldSnapshotJsonCodec
+class Entity
+enum PlantType
+enum TreeVariant
+enum TreeLifeStage
+
+SimulationEngine o-- Grid
+SimulationEngine --> TickLogic
+SimulationEngine --> WorldGenerator
+SimulationEngine --> WorldSnapshot
+SimulationEngine --> ActiveEventZone
+Grid o-- Tile
+Grid --> Entity
+Tile --> PlantState
+PlantState --> PlantType
+PlantState --> TreeVariant
+PlantState --> TreeLifeStage
+SimulationStorage --> SimulationDatabase
+SimulationStorage --> SimulationSaveDao
+SimulationStorage --> SimulationSaveEntity
+SimulationStorage --> WorldSnapshotJsonCodec
+WorldSnapshotJsonCodec --> WorldSnapshot
+@enduml

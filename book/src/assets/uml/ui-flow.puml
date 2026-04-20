@@ -1,0 +1,53 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam classFontName Helvetica
+skinparam ArrowColor #4B5563
+skinparam ClassBorderColor #1F2937
+skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassHeaderBackgroundColor #E5E7EB
+skinparam ClassAttributeIconSize 0
+skinparam linetype ortho
+left to right direction
+
+class MainActivity
+class SimulationFragment
+class StatsFragment
+class SaveLoadFragment
+class SettingsFragment
+class SimulationCanvasView
+class TextureLibrary
+class SimulationSession
+class SimulationEngine
+class SimulationStorage
+class StatTracker
+class AppSettings
+class MusicManager
+class SaveAdapter
+
+MainActivity --> SimulationFragment
+MainActivity --> StatsFragment
+MainActivity --> SaveLoadFragment
+MainActivity --> SettingsFragment
+
+SimulationFragment --> SimulationCanvasView
+SimulationFragment --> SimulationSession
+SimulationFragment --> SimulationEngine
+SimulationFragment --> AppSettings
+
+StatsFragment --> SimulationEngine
+StatsFragment --> StatTracker
+
+SaveLoadFragment --> SimulationSession
+SaveLoadFragment --> SaveAdapter
+SaveLoadFragment --> SimulationStorage
+
+SettingsFragment --> AppSettings
+SettingsFragment --> SimulationSession
+SettingsFragment --> SimulationStorage
+
+SimulationCanvasView --> TextureLibrary
+MusicManager --> AppSettings
+@enduml
