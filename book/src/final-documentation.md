@@ -27,15 +27,15 @@ The following diagrams describe the delivered implementation rather than the ori
 
 ### Domain Model
 
-![Domain model UML](assets/uml/domain-model.svg)
+![Domain model UML](assets/uml/domain-model.png)
 
 ### Simulation Core And Persistence
 
-![Simulation core and persistence UML](assets/uml/simulation-core.svg)
+![Simulation core and persistence UML](assets/uml/simulation-core.png)
 
 ### UI And Data Flow
 
-![UI and data flow UML](assets/uml/ui-flow.svg)
+![UI and data flow UML](assets/uml/ui-flow.png)
 
 These diagrams match the delivered implementation at package level:
 

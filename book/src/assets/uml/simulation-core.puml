@@ -1,77 +1,88 @@
 @startuml
+title Simulation Core And Persistence
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam dpi 180
 skinparam defaultFontName Helvetica
-skinparam classFontName Helvetica
-skinparam ArrowColor #4B5563
-skinparam ClassBorderColor #1F2937
-skinparam ClassBackgroundColor #F9FAFB
-skinparam ClassHeaderBackgroundColor #E5E7EB
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #0F172A
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #E2E8F0
 skinparam ClassAttributeIconSize 0
-skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam linetype polyline
 top to bottom direction
+hide empty methods
+hide empty fields
 
-class SimulationEngine {
-  +initializeWorld()
-  +start()
-  +pause()
-  +tickOnce()
-  +reset(width, height)
-  +triggerDisaster(x, y) : boolean
-  +triggerPredatorFrenzy(x, y) : boolean
-  +getSnapshot() : WorldSnapshot
+package "simulation" {
+  class SimulationEngine {
+    +initializeWorld()
+    +start()
+    +pause()
+    +tickOnce()
+    +reset(width, height)
+    +triggerDisaster(x, y) : boolean
+    +triggerPredatorFrenzy(x, y) : boolean
+    +getSnapshot() : WorldSnapshot
+  }
+
+  class TickLogic {
+    +advance(grid, activeEventZones)
+  }
+
+  class WorldGenerator {
+    +seedWorld(grid, random, ...)
+  }
+
+  class Grid {
+    +getTile(x, y) : Tile
+    +placeAnimal(entity) : boolean
+    +placeBerryBush(x, y) : boolean
+    +placeTree(x, y, variant) : boolean
+    +removeAnimal(entity)
+  }
+
+  class Tile {
+    +terrainType : TerrainType
+    +grassAmount : int
+    +plantState : PlantState
+    +animal : Entity
+  }
+
+  class PlantState {
+    +plantType : PlantType
+    +durability : int
+    +berryAmount : int
+    +treeVariant : TreeVariant
+    +treeLifeStage : TreeLifeStage
+    +advanceTick()
+  }
+
+  class WorldSnapshot <<record>>
+  class ActiveEventZone <<record>>
+  enum PlantType
+  enum TreeVariant
+  enum TreeLifeStage
 }
 
-class TickLogic {
-  +advance(grid, activeEventZones)
+package "storage" {
+  interface SaveLoad
+  class SimulationStorage {
+    +save(name, state) : long
+    +load(id) : WorldSnapshot
+    +listSaves() : List
+    +delete(save)
+  }
+  class SimulationDatabase <<RoomDatabase>>
+  class SimulationSaveDao <<DAO>>
+  class SimulationSaveEntity <<Room Entity>>
+  class WorldSnapshotJsonCodec
 }
 
-class WorldGenerator {
-  +seedWorld(grid, random, ...)
+package "model" {
+  class Entity
 }
-
-class Grid {
-  +getTile(x, y) : Tile
-  +placeAnimal(entity) : boolean
-  +placeBerryBush(x, y) : boolean
-  +placeTree(x, y, variant) : boolean
-  +removeAnimal(entity)
-}
-
-class Tile {
-  +terrainType : TerrainType
-  +grassAmount : int
-  +plantState : PlantState
-  +animal : Entity
-}
-
-class PlantState {
-  +plantType : PlantType
-  +durability : int
-  +berryAmount : int
-  +treeVariant : TreeVariant
-  +treeLifeStage : TreeLifeStage
-  +advanceTick()
-  +supportsResource(kind) : boolean
-}
-
-class WorldSnapshot <<record>>
-class ActiveEventZone <<record>>
-class SimulationStorage {
-  +save(name, state) : long
-  +load(id) : WorldSnapshot
-  +listSaves() : List
-  +delete(save)
-}
-class SimulationDatabase <<RoomDatabase>>
-class SimulationSaveDao <<DAO>>
-class SimulationSaveEntity <<Room Entity>>
-class WorldSnapshotJsonCodec
-class Entity
-enum PlantType
-enum TreeVariant
-enum TreeLifeStage
 
 SimulationEngine o-- Grid
 SimulationEngine --> TickLogic
@@ -84,9 +95,16 @@ Tile --> PlantState
 PlantState --> PlantType
 PlantState --> TreeVariant
 PlantState --> TreeLifeStage
-SimulationStorage --> SimulationDatabase
+
+SimulationStorage ..|> SaveLoad
 SimulationStorage --> SimulationSaveDao
-SimulationStorage --> SimulationSaveEntity
 SimulationStorage --> WorldSnapshotJsonCodec
+SimulationStorage --> SimulationSaveEntity
+SimulationStorage --> WorldSnapshot
+SimulationDatabase --> SimulationSaveDao
+SimulationSaveDao --> SimulationSaveEntity
 WorldSnapshotJsonCodec --> WorldSnapshot
+SimulationEngine -[hidden]down-> SimulationStorage
+TickLogic -[hidden]right-> PlantState
+Grid -[hidden]right-> SimulationSaveDao
 @enduml

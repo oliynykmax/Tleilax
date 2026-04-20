@@ -1,53 +1,76 @@
 @startuml
+title UI And Data Flow
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam dpi 180
 skinparam defaultFontName Helvetica
-skinparam classFontName Helvetica
-skinparam ArrowColor #4B5563
-skinparam ClassBorderColor #1F2937
-skinparam ClassBackgroundColor #F9FAFB
-skinparam ClassHeaderBackgroundColor #E5E7EB
-skinparam ClassAttributeIconSize 0
-skinparam linetype ortho
+skinparam ArrowColor #475569
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BorderColor #0F172A
+  BackgroundColor #FFFFFF
+}
+skinparam package {
+  BorderColor #94A3B8
+  BackgroundColor #F8FAFC
+}
+skinparam linetype polyline
 left to right direction
 
-class MainActivity
-class SimulationFragment
-class StatsFragment
-class SaveLoadFragment
-class SettingsFragment
-class SimulationCanvasView
-class TextureLibrary
-class SimulationSession
-class SimulationEngine
-class SimulationStorage
-class StatTracker
-class AppSettings
-class MusicManager
-class SaveAdapter
+package "Navigation" {
+  rectangle MainActivity
+}
 
-MainActivity --> SimulationFragment
-MainActivity --> StatsFragment
-MainActivity --> SaveLoadFragment
-MainActivity --> SettingsFragment
+package "Fragments" {
+  rectangle SimulationFragment
+  rectangle StatsFragment
+  rectangle SaveLoadFragment
+  rectangle SettingsFragment
+}
 
-SimulationFragment --> SimulationCanvasView
-SimulationFragment --> SimulationSession
-SimulationFragment --> SimulationEngine
-SimulationFragment --> AppSettings
+package "UI Views / Adapters" {
+  rectangle SimulationCanvasView
+  rectangle TextureLibrary
+  rectangle SaveAdapter
+}
 
-StatsFragment --> SimulationEngine
-StatsFragment --> StatTracker
+package "Shared Runtime" {
+  rectangle SimulationSession
+  rectangle SimulationEngine
+  rectangle StatTracker
+  rectangle AppSettings
+  rectangle MusicManager
+  rectangle SimulationStorage
+}
 
-SaveLoadFragment --> SimulationSession
-SaveLoadFragment --> SaveAdapter
-SaveLoadFragment --> SimulationStorage
+MainActivity --> SimulationFragment : opens
+MainActivity --> StatsFragment : opens
+MainActivity --> SaveLoadFragment : opens
+MainActivity --> SettingsFragment : opens
 
-SettingsFragment --> AppSettings
-SettingsFragment --> SimulationSession
-SettingsFragment --> SimulationStorage
+SimulationFragment --> SimulationCanvasView : renders world
+SimulationFragment --> SimulationSession : active session
+SimulationFragment --> SimulationEngine : listens / commands
+SimulationFragment --> AppSettings : reads UI prefs
 
-SimulationCanvasView --> TextureLibrary
-MusicManager --> AppSettings
+StatsFragment --> SimulationEngine : subscribes
+StatsFragment --> StatTracker : reads history
+
+SaveLoadFragment --> SimulationSession : load into session
+SaveLoadFragment --> SimulationStorage : CRUD saves
+SaveLoadFragment --> SaveAdapter : RecyclerView rows
+
+SettingsFragment --> AppSettings : edits defaults
+SettingsFragment --> SimulationSession : regenerates world
+SettingsFragment --> SimulationStorage : cleanup
+
+SimulationCanvasView --> TextureLibrary : sprites
+MusicManager --> AppSettings : listens
+
+SimulationFragment -[hidden]-> StatsFragment
+StatsFragment -[hidden]-> SaveLoadFragment
+SaveLoadFragment -[hidden]-> SettingsFragment
+SimulationCanvasView -[hidden]-> SaveAdapter
+SimulationEngine -[hidden]-> SimulationStorage
 @enduml

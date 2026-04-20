@@ -1,43 +1,57 @@
 @startuml
+title Domain Model
 skinparam backgroundColor transparent
 skinparam shadowing false
 skinparam dpi 180
 skinparam defaultFontName Helvetica
-skinparam classFontName Helvetica
-skinparam ArrowColor #4B5563
-skinparam ClassBorderColor #1F2937
-skinparam ClassBackgroundColor #F9FAFB
-skinparam ClassHeaderBackgroundColor #E5E7EB
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #0F172A
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #E2E8F0
 skinparam ClassAttributeIconSize 0
-skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam linetype polyline
 left to right direction
+hide empty methods
+hide empty fields
 
-abstract class Entity {
-  +x : int
-  +y : int
-  +energy : int
-  +health : int
-  +type : EntityType
-  +isAlive() : boolean
-  +canReproduce() : boolean
-  +spawnOffspring(x, y) : Entity
+package "model" {
+  abstract class Entity {
+    +x : int
+    +y : int
+    +energy : int
+    +health : int
+    +type : EntityType
+    +isAlive() : boolean
+    +canReproduce() : boolean
+    +spawnOffspring(x, y) : Entity
+  }
+
+  abstract class Animal {
+    +speed : int
+    +visionRange : int
+    +attackPower : int
+    +attackRange : int
+  }
+
+  class Predator
+  class Prey
+  class Plant
+
+  enum EntityType {
+    WOLF
+    RABBIT
+    MOUSE
+    DEER
+    GRASS
+    BERRY_BUSH
+    TREE
+  }
 }
-
-abstract class Animal {
-  +speed : int
-  +visionRange : int
-  +attackPower : int
-  +attackRange : int
-}
-
-class Predator
-class Prey
-class Plant
-enum EntityType
 
 Entity <|-- Animal
 Animal <|-- Predator
 Animal <|-- Prey
 Entity <|-- Plant
-Entity --> EntityType
+Entity --> EntityType : type
 @enduml
