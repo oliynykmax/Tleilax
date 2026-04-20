@@ -1,0 +1,48 @@
+@startuml
+title Visual Wireframes
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #475569
+skinparam packageStyle rectangle
+skinparam rectangle {
+  BorderColor #0F172A
+  BackgroundColor #FFFFFF
+}
+skinparam package {
+  BorderColor #94A3B8
+  BackgroundColor #F8FAFC
+}
+left to right direction
+
+package "Screen 1: Simulation" {
+  rectangle "Species Picker:\nWolf  Rabbit  Mouse  Tree" as S1H
+  rectangle "Canvas:\n2D Ecosystem Grid" as S1C
+  rectangle "Controls:\nPause  Speed Down  Speed Up  Reset" as S1B
+  S1H -down-> S1C
+  S1C -down-> S1B
+}
+
+package "Screen 2: Statistics" {
+  rectangle "Line Graph:\nPopulation vs Time" as S2G
+  rectangle "Summary:\nTicks + status" as S2S
+  S2G -down-> S2S
+}
+
+package "Screen 3: Save / Load" {
+  rectangle "Button:\nSave Current Simulation" as S3B
+  rectangle "RecyclerView:\nSaved worlds list" as S3L
+  S3B -down-> S3L
+}
+
+package "Screen 4: Settings" {
+  rectangle "Slider:\nGrid Size" as S4G
+  rectangle "Selector:\nDefault Speed" as S4S
+  rectangle "Sliders:\nInitial Population" as S4P
+  rectangle "Button:\nReset to Defaults" as S4R
+  S4G -down-> S4S
+  S4S -down-> S4P
+  S4P -down-> S4R
+}
+@enduml

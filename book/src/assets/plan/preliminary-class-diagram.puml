@@ -1,0 +1,131 @@
+@startuml
+title Preliminary UML Class Diagram
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam dpi 180
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #475569
+skinparam ClassBorderColor #0F172A
+skinparam ClassBackgroundColor #FFFFFF
+skinparam ClassHeaderBackgroundColor #E2E8F0
+skinparam ClassAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype polyline
+top to bottom direction
+
+abstract class Entity {
+  +x : int
+  +y : int
+  +energy : int
+  +update(grid)*
+  +isAlive() : boolean
+}
+
+abstract class Organism {
+  +maxEnergy : int
+  +reproductionThreshold : int
+  +reproduce() : Organism
+}
+
+abstract class Animal {
+  +speed : int
+  +visionRange : int
+  +move(grid)
+  +eat(target)
+  +findTarget(grid) : Organism
+}
+
+abstract class Predator {
+  +findTarget(grid) : Organism
+}
+
+abstract class Prey {
+  +findTarget(grid) : Organism
+}
+
+abstract class Plant {
+  +spread(grid)
+  +reproduce() : Organism
+}
+
+class Wolf
+class Rabbit
+class Mouse
+class Deer
+class Grass
+class BerryBush
+class Tree
+
+class Grid {
+  +cells : Entity[][]
+  +width : int
+  +height : int
+  +getNeighbours(x, y) : List
+  +place(entity)
+  +remove(entity)
+  +tick()
+}
+
+class SimulationEngine {
+  +grid : Grid
+  +tickCount : int
+  +state : SimulationState
+  +start()
+  +pause()
+  +setSpeed(speed)
+  +tick()
+  +getStats() : Map
+}
+
+class StatTracker {
+  +populationHistory : Map
+  +record(snapshot)
+  +getHistory() : Map
+}
+
+class Storage <<Room-based>> {
+  +save(state)
+  +load(id) : SimulationState
+  +listSaves() : List
+}
+
+class SimulationState {
+  +entities : List
+  +gridWidth : int
+  +gridHeight : int
+  +tickCount : int
+  +timestamp : long
+}
+
+Entity <|-- Organism
+Organism <|-- Animal
+Organism <|-- Plant
+Animal <|-- Predator
+Animal <|-- Prey
+Predator <|-- Wolf
+Prey <|-- Rabbit
+Prey <|-- Mouse
+Prey <|-- Deer
+Plant <|-- Grass
+Plant <|-- BerryBush
+Plant <|-- Tree
+
+SimulationEngine o-- Grid
+SimulationEngine o-- SimulationState
+Grid o-- Entity
+
+note right of Predator
+  scans for Prey
+  within visionRange
+end note
+
+note right of Prey
+  scans for Plant
+  within visionRange,
+  flees Predator
+end note
+
+note bottom of Plant
+  reproduce() calls spread
+end note
+@enduml

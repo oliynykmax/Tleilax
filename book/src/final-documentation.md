@@ -21,6 +21,17 @@ Main implementation areas:
 - Statistics: live charting and summary metrics.
 - Settings: presentation options and world-generation defaults.
 
+## Implementation Details
+
+- The simulation runs as a tick-based system. `SimulationEngine` controls starting, pausing, speed changes, and world resets, while `TickLogic` advances the world one tick at a time.
+- The world itself is stored in a `Grid` made of `Tile` objects. Each tile can hold terrain, grass, one plant state, and one animal, which made it easier to keep the rules clear.
+- Animal behavior is handled in a simple order each tick: energy use first, then reproduction, fleeing, eating, attacking, chasing, and finally random movement if nothing else happens.
+- Plants are handled separately from animals. Grass spreads, trees have growth stages, and berry bushes regrow berries and now also have their own lifecycle.
+- Save and load were implemented with Room. We store save metadata in the database and the actual world state as a serialized snapshot, so a saved simulation can be restored exactly.
+- Statistics are tracked from simulation snapshots and shown in the Stats tab as a graph and summary values, so the user can see how populations change over time.
+- Settings are used for values that affect world generation, such as grass coverage and starting counts for animals and plants. These are applied when a new world is generated, not in the middle of an existing one.
+- Live events were implemented as extra runtime actions in the simulation. Disaster clears an area immediately, and predator frenzy temporarily boosts wolves inside the selected zone.
+
 ## UML (Implemented Architecture)
 
 The following diagrams describe the delivered implementation rather than the original plan.
